@@ -1,27 +1,64 @@
 {
-  "name": "@agent-context/vscode",
+  "name": "agent-context",
   "displayName": "Agent Context",
   "description": "Visualize @agent-context annotations in VS Code.",
   "version": "0.1.0",
   "private": true,
-  "publisher": "replace-me",
+  "publisher": "agent-context-local",
   "type": "commonjs",
   "main": "./dist/extension.js",
   "engines": {
     "vscode": "^1.100.0"
   },
-  "activationEvents": ["onStartupFinished"],
-  "categories": ["Other"],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "categories": [
+    "Other"
+  ],
   "scripts": {
     "build": "esbuild src/extension.ts --bundle --platform=node --format=cjs --outfile=dist/extension.js --external:vscode --sourcemap",
     "clean": "rm -rf dist",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "package": "vsce package --no-dependencies --allow-missing-repository"
   },
   "dependencies": {
     "@agent-context/core": "workspace:*"
   },
   "devDependencies": {
     "@types/vscode": "^1.100.0",
-    "esbuild": "^0.25.9"
+    "esbuild": "^0.25.9",
+    "@vscode/vsce": "^3.6.0"
+  },
+  "license": "UNLICENSED",
+  "contributes": {
+    "configuration": {
+      "title": "Agent Context",
+      "properties": {
+        "agentContext.visibility": {
+          "type": "string",
+          "enum": [
+            "hidden",
+            "all",
+            "custom"
+          ],
+          "default": "hidden",
+          "description": "Choose which annotation comments remain visible. Hidden comments still have a hover marker."
+        },
+        "agentContext.visibleTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Annotation types to display in custom mode (lowercase)."
+        },
+        "agentContext.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable annotation markers and concealment."
+        }
+      }
+    }
   }
 }

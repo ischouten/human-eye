@@ -5,10 +5,12 @@
   "scripts": {
     "build": "pnpm -r build",
     "build:core": "pnpm --filter @agent-context/core build",
-    "build:vscode": "pnpm --filter @agent-context/vscode build",
-    "build:browser": "pnpm --filter @agent-context/browser build",
+    "build:vscode": "pnpm --filter agent-context... build",
+    "build:browser": "pnpm --filter @agent-context/browser... build",
     "clean": "pnpm -r clean",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm build:core && pnpm -r typecheck",
+    "test": "pnpm build:core && node --test packages/core/test/*.test.mjs",
+    "package:vscode": "pnpm build:vscode && pnpm --filter agent-context package"
   },
   "devDependencies": {
     "typescript": "^5.9.2"
