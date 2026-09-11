@@ -1,0 +1,17 @@
+{
+  "name": "@agent-context/browser",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node ./scripts/build.mjs",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@agent-context/core": "workspace:*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.9"
+  }
+}
