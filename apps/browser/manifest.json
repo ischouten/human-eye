@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Agent Context",
+  "name": "HumanEye for GitHub",
   "version": "0.1.0",
   "description": "Visualize @agent-context annotations on GitHub.",
   "content_scripts": [

@@ -3,3 +3,5 @@
 !README.md
 !dist/extension.js
 !resources/vscode-agent-context.css
+!images/python-expanded.png
+!images/python-collapsed.png

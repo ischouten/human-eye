@@ -1,10 +1,8 @@
-# `@agent-context` Standalone Extensions --- Implementation Briefing
+# HumanEye --- Implementation Briefing
 
 ## Objective
 
-Turn the `@agent-context` convention currently being developed for
-**itsyGitsy** into an editor/tool-independent convention with standalone
-integrations.
+Build HumanEye as the standalone extension product for the editor-independent `@agent-context` annotation specification currently being developed for **itsyGitsy**.
 
 The implementation order is:
 
@@ -21,9 +19,9 @@ The longer-term model is:
 ``` text
                     ┌─ itsyGitsy
                     │
-@agent-context ─────┼─ VS Code extension
+@agent-context ─────┼─ HumanEye for VS Code
 core/spec/parser    │
-                    └─ GitHub browser extension
+                    └─ HumanEye for GitHub
 ```
 
 The extensions do **not** need an AI model, Copilot integration, server,
@@ -193,9 +191,9 @@ Implement in this order:
 Possible commands later:
 
 ``` text
-Agent Context: Hide All
-Agent Context: Show All
-Agent Context: Show Invariants
+HumanEye: Hide All
+HumanEye: Show All
+HumanEye: Show Invariants
 ...
 ```
 
@@ -483,8 +481,7 @@ Only after the behavior has been validated locally:
 
 The important conceptual distinction is:
 
-**`@agent-context` should be the convention; itsyGitsy, VS Code, and
-GitHub are consumers of that convention.**
+**`@agent-context` is the convention. HumanEye is the extension product that implements it for VS Code and GitHub, while itsyGitsy is another consumer.**
 
 That makes the project useful outside itsyGitsy and gives other
 editors/tools a stable contract they could implement later.

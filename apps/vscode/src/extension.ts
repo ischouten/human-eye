@@ -167,7 +167,7 @@ export function activate(context: vscode.ExtensionContext): void {
       const customCss = vscode.extensions.getExtension("be5invis.vscode-custom-css");
       if (!customCss) {
         void vscode.window.showErrorMessage(
-          "Install the Custom CSS and JS Loader extension before installing the Agent Context folding style."
+          "Install the Custom CSS and JS Loader extension before installing the HumanEye folding style."
         );
         return;
       }

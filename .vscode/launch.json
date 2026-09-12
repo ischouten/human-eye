@@ -1,7 +1,7 @@
 {
   "version": "0.2.0",
   "configurations": [{
-    "name": "Agent Context Extension",
+    "name": "HumanEye Extension",
     "type": "extensionHost",
     "request": "launch",
     "args": ["--extensionDevelopmentPath=${workspaceFolder}/apps/vscode"],

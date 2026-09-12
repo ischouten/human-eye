@@ -1,16 +1,16 @@
 {
-  "name": "agent-context-monorepo",
+  "name": "human-eye",
   "private": true,
   "packageManager": "pnpm@10.15.1",
   "scripts": {
-    "build": "pnpm -r build",
-    "build:core": "pnpm --filter @agent-context/core build",
-    "build:vscode": "pnpm --filter agent-context... build",
-    "build:browser": "pnpm --filter @agent-context/browser... build",
-    "clean": "pnpm -r clean",
-    "typecheck": "pnpm build:core && pnpm -r typecheck",
-    "test": "pnpm build:core && node --test packages/core/test/*.test.mjs",
-    "package:vscode": "pnpm build:vscode && pnpm --filter agent-context package"
+    "build": "corepack pnpm -r build",
+    "build:core": "corepack pnpm --filter @agent-context/core build",
+    "build:vscode": "corepack pnpm --filter human-eye... build",
+    "build:browser": "corepack pnpm --filter @agent-context/browser... build",
+    "clean": "corepack pnpm -r clean",
+    "typecheck": "corepack pnpm build:core && corepack pnpm -r typecheck",
+    "test": "corepack pnpm build:core && node --test packages/core/test/*.test.mjs",
+    "package:vscode": "corepack pnpm build:vscode && corepack pnpm --filter human-eye package"
   },
   "devDependencies": {
     "typescript": "^5.9.2"

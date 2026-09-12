@@ -1,4 +1,4 @@
-# Initial annotation contract
+# `@agent-context` Annotation Specification
 
 An annotation occupies a standalone comment: `//`, `#`, `/* ... */`, or `<!-- ... -->`. Leading whitespace is allowed. Block comments must be closed and cannot have code after the closing delimiter. Inline comments after executable code are not recognized.
 

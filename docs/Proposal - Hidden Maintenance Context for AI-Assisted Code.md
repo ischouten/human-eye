@@ -1,5 +1,7 @@
 # Proposal: `@agent-context`
 
+`@agent-context` is the annotation specification described by this proposal. HumanEye is the standalone extension product that presents these annotations in VS Code and, in a later phase, on GitHub.
+
 ## Problem
 
 AI coding agents tend to generate substantially more comments than human developers.
@@ -241,7 +243,7 @@ This is an important part of the feature rather than an advanced preference hidd
 Conceptually:
 
 ```text
-File.java                     [Blame] [Agent Context ▾] [...]
+File.java                     [Blame] [@agent-context ▾] [...]
 ```
 
 The filter controls which classes of agent context are rendered inline.
@@ -249,7 +251,7 @@ The filter controls which classes of agent context are rendered inline.
 Possible menu:
 
 ```text
-Agent Context
+@agent-context
 
 ○ Hidden
 ○ All
@@ -311,7 +313,7 @@ This preference determines the initial state when opening file diffs.
 
 ## 2. File-level override
 
-Every file diff has its own `Agent Context` filter in the toolbar.
+Every file diff has its own `@agent-context` filter in the toolbar.
 
 Changing this filter affects **that file view** and overrides the application default.
 

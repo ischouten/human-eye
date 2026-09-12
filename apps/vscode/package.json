@@ -1,10 +1,19 @@
 {
-  "name": "agent-context",
-  "displayName": "Agent Context",
-  "description": "Visualize @agent-context annotations in VS Code.",
-  "version": "0.1.27",
+  "name": "human-eye",
+  "displayName": "HumanEye",
+  "description": "Make code human-readable by folding @agent-context maintenance annotations.",
+  "version": "0.1.29",
   "private": true,
   "publisher": "agent-context-local",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ischouten/human-eye.git",
+    "directory": "apps/vscode"
+  },
+  "homepage": "https://github.com/ischouten/human-eye#readme",
+  "bugs": {
+    "url": "https://github.com/ischouten/human-eye/issues"
+  },
   "type": "commonjs",
   "main": "./dist/extension.js",
   "engines": {
@@ -21,7 +30,7 @@
     "clean": "rm -rf dist",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test test/*.test.cjs",
-    "package": "vsce package --no-dependencies --allow-missing-repository"
+    "package": "vsce package --no-dependencies"
   },
   "dependencies": {
     "@agent-context/core": "workspace:*"
@@ -37,14 +46,14 @@
       {
         "command": "agentContext.installFoldingControlStyle",
         "title": "Install Folding Control Hover Style",
-        "category": "Agent Context"
+        "category": "HumanEye"
       }
     ],
     "configurationDefaults": {
       "editor.foldingHighlight": false
     },
     "configuration": {
-      "title": "Agent Context",
+      "title": "HumanEye",
       "properties": {
         "agentContext.visibility": {
           "type": "string",
