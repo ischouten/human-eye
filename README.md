@@ -1,12 +1,16 @@
 # HumanEye
 
+<p align="center">
+  <img src="res/human-eye.png" alt="HumanEye logo" width="160">
+</p>
+
 HumanEye makes code human-readable again by folding durable, agent-directed maintenance comments out of the normal reading flow. `@agent-context` is the editor-independent annotation specification that HumanEye implements; HumanEye is the extension and product name.
 
 This monorepo contains the HumanEye VS Code extension, a browser integration for GitHub, and the shared `@agent-context` parser.
 
 ## Requirements
 
-- Node.js 22+
+- Node.js 24+
 - pnpm 10+
 
 ## Install
@@ -55,13 +59,13 @@ Before publishing, choose the permanent VS Code `publisher` value in `apps/vscod
 
 ## VS Code MVP and packaging
 
-The initial implementation covers the shared parser and VS Code integration. The browser package remains a placeholder for the next phase. See [the brief](docs/BRIEFING.md) and [the grammar contract](docs/GRAMMAR.md).
+The shared parser and VS Code integration are implemented. The browser package remains a placeholder for the next phase. See [the roadmap](docs/ROADMAP.md) and [the grammar contract](docs/GRAMMAR.md).
 
 Run `pnpm test`, `pnpm typecheck`, and `pnpm package:vscode`. Individual extension builds include their core dependency. Packaging creates `apps/vscode/human-eye-<version>.vsix` with the bundled runtime and no external runtime dependencies. If pnpm is not installed, use `npx --yes pnpm@10.15.1` in place of `pnpm`.
 
 GitHub Actions validates and packages on pushes, pull requests, and manual runs. Download `human-eye-vsix` from the validation workflow artifacts, extract it, and install the VSIX using VS Code's **Extensions: Install from VSIX** command. Packaging uses Microsoft's [vsce tooling](https://code.visualstudio.com/api/working-with-extensions/publishing-extension).
 
-Marketplace publishing runs only through the manually dispatched **Publish HumanEye for VS Code** GitHub Actions workflow. The workflow repeats the tests and type checks, packages the VSIX, waits for any protection configured on the `visual-studio-marketplace` GitHub environment, authenticates through Microsoft Entra workload identity federation, and publishes the validated artifact. Configure `AZURE_CLIENT_ID` and `AZURE_TENANT_ID` as secrets on that environment. The Entra application also needs a federated credential for the GitHub environment and permission to publish for the Visual Studio Marketplace publisher. No Azure client secret or Marketplace PAT is used.
+Marketplace publishing runs only through the manually dispatched **Publish HumanEye for VS Code** GitHub Actions workflow. The workflow repeats the tests and type checks, packages the VSIX, waits for any protection configured on the `visual-studio-marketplace` GitHub environment, and publishes the validated artifact through Visual Studio Marketplace trusted publishing. Configure the Marketplace publisher to trust the `ischouten/human-eye` repository, `.github/workflows/publish-vscode.yml` workflow, and `visual-studio-marketplace` environment. GitHub exchanges its OIDC token directly for a short-lived Marketplace credential; no GitHub secret, Microsoft Entra application, client secret, or Marketplace PAT is used. The workflow temporarily pins `@vscode/vsce` 3.9.3-12 because trusted publishing is present in that published prerelease but not yet in the stable release.
 
 For local debugging, run `pnpm build:vscode`, then launch **HumanEye Extension** from the root VS Code Run and Debug view.
 

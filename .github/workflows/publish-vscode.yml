@@ -11,18 +11,19 @@ jobs:
   package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: '24'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
       - run: pnpm typecheck
+      - run: pnpm benchmark:performance
       - run: xvfb-run -a pnpm --filter human-eye test:integration
       - run: pnpm package:vscode
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: human-eye-vsix
           path: apps/vscode/human-eye-*.vsix
@@ -33,23 +34,17 @@ jobs:
     runs-on: ubuntu-latest
     environment: visual-studio-marketplace
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: '24'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: human-eye-vsix
           path: apps/vscode
-      - name: Sign in to Microsoft Entra ID through workload identity federation
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          allow-no-subscriptions: true
       - name: Publish to Visual Studio Marketplace
         working-directory: apps/vscode
-        run: pnpm exec vsce publish --azure-credential --packagePath human-eye-*.vsix
+        run: pnpm exec vsce publish --oidc --packagePath human-eye-*.vsix

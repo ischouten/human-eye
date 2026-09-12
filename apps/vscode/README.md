@@ -1,5 +1,9 @@
 # HumanEye
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ischouten/human-eye/main/res/human-eye.png" alt="HumanEye logo" width="160">
+</p>
+
 Make code human-readable again by hiding the long, agent-directed maintenance comments that coding agents increasingly add to source files.
 
 Some generated comments contain valuable context for future modifications but distract humans during everyday reading and review. `@agent-context` is the annotation specification for keeping that knowledge colocated with the code; HumanEye collapses those annotations into subtle horizontal markers. Hover or expand a marker when you need the full context. The source remains unchanged, and everything runs locally without an AI service, account, or network access.

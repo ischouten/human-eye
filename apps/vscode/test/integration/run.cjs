@@ -19,6 +19,19 @@ async function main() {
     path.resolve(__dirname, "fixture/agent_context_fixture.py"),
     path.join(fixturePath, "agent_context_fixture.py")
   );
+  const largeFixture = ["export class LargeAgentContextFixture {"];
+  for (let index = 0; index < 25_000; index += 1) {
+    if (index % 50 === 0) {
+      largeFixture.push(
+        "  /* @agent-context invariant",
+        `   * Generated integration annotation ${index}.`,
+        "   */"
+      );
+    }
+    largeFixture.push(`  readonly value${index} = ${index};`);
+  }
+  largeFixture.push("}");
+  fs.writeFileSync(path.join(fixturePath, "LargeAgentContextFixture.ts"), largeFixture.join("\n"));
   const macExecutable = "/Applications/Visual Studio Code.app/Contents/MacOS/Code";
   try {
     await runTests({

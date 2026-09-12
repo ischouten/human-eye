@@ -1,6 +1,7 @@
 # Proposal: `@agent-context`
 
-`@agent-context` is the annotation specification described by this proposal. HumanEye is the standalone extension product that presents these annotations in VS Code and, in a later phase, on GitHub.
+`@agent-context` is the annotation specification described by this proposal. 
+HumanEye is the standalone extension product that presents these annotations in VS Code and, in a later phase, on GitHub.
 
 ## Problem
 
@@ -128,7 +129,7 @@ The instruction is intentionally short because `AGENTS.md` / `CLAUDE.md` content
 
 ---
 
-# ItsyGitsy implementation
+# Presentation implementation
 
 ## V1 goal
 
@@ -381,7 +382,7 @@ Consider a real Git diff:
 + return calculator.calculate(order);
 ```
 
-With the default visibility setting, ItsyGitsy should visually reduce this to approximately:
+With the default visibility setting, HumanEye should visually reduce this to approximately:
 
 ```diff
   ─────────────────────────────
@@ -390,7 +391,7 @@ With the default visibility setting, ItsyGitsy should visually reduce this to ap
 
 The hidden annotation must still remain part of the underlying Git diff.
 
-ItsyGitsy is changing **presentation**, not Git semantics.
+HumanEye is changing **presentation**, not Git semantics.
 
 If the user enables `invariant`, the complete annotation becomes visible.
 
@@ -398,7 +399,7 @@ If the user enables `invariant`, the complete annotation becomes visible.
 
 # Important distinction: hidden context vs hidden changes
 
-Hiding `@agent-context` must never cause ItsyGitsy to misrepresent whether the file changed.
+Hiding `@agent-context` must never cause an integration to misrepresent whether the file changed.
 
 The Git diff, line counts, staged state, commit contents, and underlying patch remain unchanged.
 
@@ -406,7 +407,7 @@ The feature is equivalent to a rendering filter.
 
 This matters especially when an annotation itself is added, modified, or deleted.
 
-ItsyGitsy may eventually expose agent-context-specific change information elsewhere, but the visual filtering must not change Git behaviour.
+An integration may eventually expose agent-context-specific change information elsewhere, but the visual filtering must not change Git behaviour.
 
 ---
 
@@ -416,7 +417,7 @@ These are enabled by the format but are not necessary for V1.
 
 ## PR / commit summary
 
-ItsyGitsy could report:
+HumanEye could report:
 
 ```text
 12 code changes
@@ -445,7 +446,7 @@ That is potentially more meaningful than merely knowing comments changed.
 
 ## AI integration
 
-When ItsyGitsy invokes an agent, annotations can be explicitly provided as maintenance context rather than indistinguishable source comments.
+When a supporting tool invokes an agent, annotations can be explicitly provided as maintenance context rather than indistinguishable source comments.
 
 Types could influence interpretation:
 
@@ -505,7 +506,7 @@ The defining concept is:
 
 > **`@agent-context` is machine-maintainer context colocated with source code but excluded by default from the normal human reading surface.**
 
-For ItsyGitsy, the initial implementation model should therefore be:
+The initial implementation model should therefore be:
 
 ```text
 detect

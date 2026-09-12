@@ -7,6 +7,7 @@
     "build:core": "corepack pnpm --filter @agent-context/core build",
     "build:vscode": "corepack pnpm --filter human-eye... build",
     "build:browser": "corepack pnpm --filter @agent-context/browser... build",
+    "benchmark:performance": "corepack pnpm build:core && node scripts/benchmark-performance.cjs",
     "clean": "corepack pnpm -r clean",
     "typecheck": "corepack pnpm build:core && corepack pnpm -r typecheck",
     "test": "corepack pnpm build:core && node --test packages/core/test/*.test.mjs && corepack pnpm --filter human-eye test",

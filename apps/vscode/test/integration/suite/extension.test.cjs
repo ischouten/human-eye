@@ -69,6 +69,17 @@ suite("HumanEye extension", () => {
     assert.equal(vscode.workspace.getConfiguration("agentContext", document.uri).get("visibility"), "all");
   });
 
+  test("opens and refreshes a large annotated document within the performance budget", async () => {
+    await setConfiguration("visibility", "hidden");
+    const started = performance.now();
+    document = await openFixture("LargeAgentContextFixture.ts");
+    const elapsed = performance.now() - started;
+    assert.ok(elapsed < 5_000, `Large annotated document took ${elapsed.toFixed(0)}ms to open and refresh`);
+    const ranges = await vscode.commands.executeCommand("_executeFoldingRangeProvider", document.uri);
+    assert.ok(ranges.some(range => range.kind?.value !== "comment" && range.end - range.start >= 25_000));
+    console.log(`Large annotated VS Code document opened and refreshed in ${elapsed.toFixed(0)}ms`);
+  });
+
   test("handles Python hash-comment annotations across enabled states", async () => {
     await setConfiguration("visibility", "hidden");
     document = await openFixture("agent_context_fixture.py");
