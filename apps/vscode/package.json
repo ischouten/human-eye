@@ -4,7 +4,7 @@
   "description": "Make code human-readable by folding @agent-context maintenance annotations.",
   "version": "0.1.32",
   "private": true,
-  "publisher": "agent-context-local",
+  "publisher": "ischouten",
   "repository": {
     "type": "git",
     "url": "https://github.com/ischouten/human-eye.git",

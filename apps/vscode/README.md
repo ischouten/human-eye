@@ -10,7 +10,7 @@ Some generated comments contain valuable context for future modifications but di
 
 ## Installation
 
-Install the `.vsix` through **Extensions → Install from VSIX**. This is a privately distributed MVP with the provisional extension identity `agent-context-local.human-eye`. Marketplace releases are published through the repository's manually dispatched GitHub Actions workflow after a permanent publisher is configured.
+Install the `.vsix` through **Extensions → Install from VSIX**. Its permanent extension identity is `ischouten.human-eye`. Marketplace releases are published through the repository's manually dispatched GitHub Actions workflow.
 
 ## How it works
 

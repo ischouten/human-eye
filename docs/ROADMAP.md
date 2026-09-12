@@ -67,12 +67,12 @@ The grammar contract is documented in [GRAMMAR.md](GRAMMAR.md).
 - [x] Add a manually dispatched GitHub Actions workflow using Visual Studio Marketplace trusted publishing with GitHub OIDC.
 - [x] Measure parsing and refresh behavior on large source files and enforce regression budgets in CI.
 - [x] Add a Marketplace PNG icon of at least 128×128 pixels.
-- [ ] Choose and configure the permanent Visual Studio Marketplace publisher ID.
+- [x] Choose and configure `ischouten` as the permanent Visual Studio Marketplace publisher ID.
 - [ ] Configure the Marketplace trusted-publishing policy and protected GitHub environment, then complete a first public publish.
 
 The September 2026 local baseline parses a 2.94 MB, 106,000-line source file containing 2,000 annotations in 5.25 ms median and 6.25 ms p95; custom-type filtering takes 0.019 ms median. The VS Code Extension Host opens and refreshes a generated 26,502-line TypeScript document containing 500 annotations in 201 ms while retaining native folding. CI allows a deliberately broad 250 ms parser median and 5-second Extension Host budget to detect major regressions without depending on runner speed.
 
-The implementation work for M3 is otherwise complete. The remaining items are the permanent publisher identity and external release configuration.
+The implementation work for M3 is otherwise complete. The remaining item is the external trusted-publishing configuration and first public release.
 
 ### M4 — GitHub browser MVP: started
 

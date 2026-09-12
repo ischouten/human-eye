@@ -55,7 +55,7 @@ After `pnpm build:browser`, open `chrome://extensions`, enable Developer mode, c
 
 Open `apps/vscode` in VS Code and add a normal extension-development launch configuration, or wire the repo root as a multi-root workspace. The built entrypoint is `apps/vscode/dist/extension.js`.
 
-Before publishing, choose the permanent VS Code `publisher` value in `apps/vscode/package.json`.
+The permanent Visual Studio Marketplace publisher ID is `ischouten`, making the extension identity `ischouten.human-eye`.
 
 ## VS Code MVP and packaging
 
@@ -73,4 +73,4 @@ For local debugging, run `pnpm build:vscode`, then launch **HumanEye Extension**
 
 Open a source file containing a multiline annotation. It should fold to one horizontal rule with no reserved blank rows. Hover the rule, then click the folding control in the gutter to expand and collapse it. Try `all` and `custom` visibility, edit the annotation type, open the same document in two editor groups, and disable the extension setting. Verify both groups refresh and ordinary code stays visible.
 
-The local publisher identifier is provisional (`agent-context-local`), so the current extension identity is `agent-context-local.human-eye`. Choose a permanent publisher before wider distribution, since changing it creates a different extension. HumanEye is available under the [MIT License](LICENSE).
+HumanEye is published as `ischouten.human-eye` under the [MIT License](LICENSE).

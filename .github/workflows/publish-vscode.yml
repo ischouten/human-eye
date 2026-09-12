@@ -5,7 +5,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   package:
@@ -33,6 +32,9 @@ jobs:
     needs: package
     runs-on: ubuntu-latest
     environment: visual-studio-marketplace
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
