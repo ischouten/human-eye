@@ -2,7 +2,7 @@
   "name": "agent-context",
   "displayName": "Agent Context",
   "description": "Visualize @agent-context annotations in VS Code.",
-  "version": "0.1.19",
+  "version": "0.1.27",
   "private": true,
   "publisher": "agent-context-local",
   "type": "commonjs",

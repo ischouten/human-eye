@@ -3,6 +3,7 @@ const test = require("node:test");
 const {
   indentationAdjustment,
   leadingVisualIndentation,
+  usesHashCommentSyntax,
   visualIndentationAfter
 } = require("../dist/presentation.js");
 
@@ -32,4 +33,10 @@ test("adjusts from source indentation to assisted-code indentation", () => {
   assert.equal(indentationAdjustment("/* @agent-context design", 4, 4), 4);
   assert.equal(indentationAdjustment("    /* @agent-context design", 8, 4), 4);
   assert.equal(indentationAdjustment("        /* @agent-context design", 4, 4), -4);
+});
+
+test("distinguishes hash comments that need manual folding", () => {
+  assert.equal(usesHashCommentSyntax("    # @agent-context design"), true);
+  assert.equal(usesHashCommentSyntax("    /* @agent-context design"), false);
+  assert.equal(usesHashCommentSyntax("    // @agent-context design"), false);
 });

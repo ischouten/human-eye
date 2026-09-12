@@ -7,12 +7,12 @@ import {
 } from "@agent-context/core";
 import {
   indentationAdjustment,
+  usesHashCommentSyntax,
   visualIndentationAfter
 } from "./presentation";
 
 export function activate(context: vscode.ExtensionContext): void {
   const header = vscode.window.createTextEditorDecorationType({
-    backgroundColor: new vscode.ThemeColor("editor.background"),
     isWholeLine: true,
     borderColor: new vscode.ThemeColor("editorIndentGuide.background"),
     borderStyle: "solid",
@@ -67,6 +67,7 @@ export function activate(context: vscode.ExtensionContext): void {
       const start = annotation.startLine - 1;
       const startLine = editor.document.lineAt(start);
       const markerColumn = startLine.text.indexOf("@agent-context");
+      const hashComment = usesHashCommentSyntax(startLine.text);
       const indentation = visualIndentationAfter(lines, annotation.endLine, tabSize);
       const adjustment = indentationAdjustment(startLine.text, indentation, tabSize);
       const leadingWhitespaceLength = startLine.text.match(/^\s*/)?.[0].length ?? 0;
@@ -87,9 +88,11 @@ export function activate(context: vscode.ExtensionContext): void {
         }
       });
       if (markerColumn >= 0) {
-        commentPrefixRanges.push(
-          new vscode.Range(start, leadingWhitespaceLength, start, markerColumn)
-        );
+        if (!hashComment) {
+          commentPrefixRanges.push(
+            new vscode.Range(start, leadingWhitespaceLength, start, markerColumn)
+          );
+        }
         markerTextRanges.push(new vscode.Range(start, markerColumn, start, startLine.text.length));
       }
     }
@@ -103,18 +106,36 @@ export function activate(context: vscode.ExtensionContext): void {
     const key = editor.document.uri.toString();
     if (initiallyFoldedDocuments.has(key)) return;
     initiallyFoldedDocuments.add(key);
-    const selectionLines = hidden
+    const manual = hidden.filter(
+      annotation =>
+        annotation.endLine > annotation.startLine &&
+        usesHashCommentSyntax(editor.document.lineAt(annotation.startLine - 1).text)
+    );
+    const nativeSelectionLines = hidden
       .filter(annotation => annotation.endLine > annotation.startLine)
+      .filter(annotation => !manual.includes(annotation))
       .map(annotation => annotation.startLine - 1);
-    if (selectionLines.length === 0) return;
+    if (manual.length === 0 && nativeSelectionLines.length === 0) return;
 
-    setTimeout(() => {
+    setTimeout(async () => {
       if (vscode.window.activeTextEditor?.document !== editor.document) return;
-      void vscode.commands.executeCommand("editor.fold", {
-        selectionLines,
-        levels: 1,
-        direction: "down"
-      });
+      if (manual.length > 0) {
+        const previousSelections = editor.selections;
+        editor.selections = manual.map(annotation => {
+          const start = annotation.startLine - 1;
+          const end = annotation.endLine - 1;
+          return new vscode.Selection(start, 0, end, editor.document.lineAt(end).text.length);
+        });
+        await vscode.commands.executeCommand("editor.createFoldingRangeFromSelection");
+        editor.selections = previousSelections;
+      }
+      if (nativeSelectionLines.length > 0) {
+        await vscode.commands.executeCommand("editor.fold", {
+          selectionLines: nativeSelectionLines,
+          levels: 1,
+          direction: "down"
+        });
+      }
     }, 0);
   }
 

@@ -6,8 +6,7 @@ import java.util.Set;
 public final class AgenticPatchRunner {
     private static final Set<String> WRITE_TOOLS = Set.of("apply_patch", "write_file", "delete_file");
 
-    /*
-     * @agent-context design
+    /* @agent-context design
      * Keep planning and execution in one loop. An earlier implementation first
      * generated a complete plan and then executed it, but later tool results
      * frequently invalidated the remaining steps. Replanning after every
@@ -22,8 +21,7 @@ public final class AgenticPatchRunner {
             ModelTurn turn = model.next(state, List.copyOf(transcript));
             ToolCall call = turn.toolCall();
 
-            /*
-             * @agent-context invariant
+            /* @agent-context invariant
              * Approval is evaluated against the exact normalized call that will execute. Do
              * not authorize the model's raw proposal and normalize it afterward: path
              * expansion or command rewriting could otherwise turn an approved read into a
@@ -35,8 +33,7 @@ public final class AgenticPatchRunner {
                 return RunResult.blocked(transcript, "The task does not authorize workspace changes");
             }
 
-            /*
-             * @agent-context dependency
+            /* @agent-context dependency
              * The workspace revision is an optimistic concurrency token shared with the
              * editor integration. A human edit increments it even when the file contents
              * later return to the same bytes. Comparing content hashes here would miss
@@ -50,8 +47,7 @@ public final class AgenticPatchRunner {
             ToolResult result = workspace.execute(normalized);
             transcript.add(new Event(Instant.now(), normalized, result));
 
-            /*
-             * @agent-context history
+            /* @agent-context history
              * Always checkpoint failed tool calls too. Incident AGENT-42 showed that
              * resuming before the failed observation made the model repeat a destructive
              * rename indefinitely. The transcript is append-only so a resumed run sees both
@@ -63,8 +59,7 @@ public final class AgenticPatchRunner {
         return RunResult.completed(transcript, state.summary());
     }
 
-    /*
-     * @agent-context compatibility
+    /* @agent-context compatibility
      * Tool paths use forward slashes in prompts and persisted transcripts on every
      * platform. Convert platform separators only inside the workspace adapter.
      * Historical transcripts are replayed in evaluation fixtures, so changing their

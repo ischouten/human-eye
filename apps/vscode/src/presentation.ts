@@ -29,3 +29,7 @@ export function indentationAdjustment(
 ): number {
   return targetIndentation - leadingVisualIndentation(markerLine, tabSize);
 }
+
+export function usesHashCommentSyntax(markerLine: string): boolean {
+  return markerLine.trimStart().startsWith("#");
+}
