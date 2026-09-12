@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.33
+
+- Publish under the permanent `ischouten.human-eye` Marketplace identity.
+- Prepare tokenless Marketplace releases through GitHub OIDC trusted publishing.
+
 ## 0.1.32
 
 - Collapse `@agent-context` maintenance annotations while preserving native language folding.
