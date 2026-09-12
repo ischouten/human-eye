@@ -1,13 +1,36 @@
 import * as vscode from "vscode";
-import { parseAgentContext, isAgentContextVisible, type AgentContextAnnotation, type AgentContextVisibility } from "@agent-context/core";
+import {
+  isAgentContextVisible,
+  parseAgentContext,
+  type AgentContextAnnotation,
+  type AgentContextVisibility
+} from "@agent-context/core";
+import {
+  indentationAdjustment,
+  visualIndentationAfter
+} from "./presentation";
 
 export function activate(context: vscode.ExtensionContext): void {
-  const concealed = vscode.window.createTextEditorDecorationType({ color: "transparent", rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed });
-  const marker = vscode.window.createTextEditorDecorationType({
-    before: { contentText: "────", color: new vscode.ThemeColor("editorLineNumber.foreground"), margin: "0 0.5em 0 0" },
+  const header = vscode.window.createTextEditorDecorationType({
+    backgroundColor: new vscode.ThemeColor("editor.background"),
+    isWholeLine: true,
+    borderColor: new vscode.ThemeColor("editorIndentGuide.background"),
+    borderStyle: "solid",
+    borderWidth: "1px 0 0 0",
+    rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed
+  });
+  const hiddenMarkerText = vscode.window.createTextEditorDecorationType({
+    color: new vscode.ThemeColor("editorGhostText.foreground"),
+    textDecoration: "none; font-size: calc(1em - 2px);",
+    rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed
+  });
+  const hiddenCommentPrefix = vscode.window.createTextEditorDecorationType({
+    textDecoration: "none; font-size: 0;",
     rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed
   });
   const cache = new Map<string, { version: number; annotations: AgentContextAnnotation[] }>();
+  const initiallyFoldedDocuments = new Set<string>();
+
   function annotations(document: vscode.TextDocument): AgentContextAnnotation[] {
     const key = document.uri.toString();
     let entry = cache.get(key);
@@ -17,38 +40,141 @@ export function activate(context: vscode.ExtensionContext): void {
     }
     return entry.annotations;
   }
-  function refresh(editor: vscode.TextEditor): void {
-    const config = vscode.workspace.getConfiguration("agentContext", editor.document.uri);
+
+  function visibility(document: vscode.TextDocument): AgentContextVisibility {
+    const config = vscode.workspace.getConfiguration("agentContext", document.uri);
     const mode = config.get<string>("visibility", "hidden");
-    const visibility: AgentContextVisibility = mode === "custom" ? { mode, types: config.get<string[]>("visibleTypes", []) } : { mode: mode === "all" ? "all" : "hidden" };
-    const hidden: vscode.Range[] = [];
-    const markers: vscode.DecorationOptions[] = [];
-    if (config.get("enabled", true)) {
-      for (const annotation of annotations(editor.document)) {
-        const range = new vscode.Range(annotation.startLine - 1, 0, annotation.endLine - 1, editor.document.lineAt(annotation.endLine - 1).text.length);
-        const hover = new vscode.MarkdownString();
-        hover.appendText(`@agent-context ${annotation.type}`);
-        hover.appendMarkdown("\n\n");
-        hover.appendText(annotation.text || "No additional context.");
-        markers.push({ range: new vscode.Range(range.start, range.start), hoverMessage: hover });
-        const selected = editor.selections.some(selection => selection.start.line <= range.end.line && selection.end.line >= range.start.line);
-        if (!selected && !isAgentContextVisible(annotation, visibility)) hidden.push(range);
+    return mode === "custom"
+      ? { mode, types: config.get<string[]>("visibleTypes", []) }
+      : { mode: mode === "all" ? "all" : "hidden" };
+  }
+
+  function hiddenAnnotations(document: vscode.TextDocument): AgentContextAnnotation[] {
+    const config = vscode.workspace.getConfiguration("agentContext", document.uri);
+    if (!config.get("enabled", true)) return [];
+    const currentVisibility = visibility(document);
+    return annotations(document).filter(annotation => !isAgentContextVisible(annotation, currentVisibility));
+  }
+
+  function refresh(editor: vscode.TextEditor): void {
+    const hidden = hiddenAnnotations(editor.document);
+    const lines = editor.document.getText().split(/\r?\n/);
+    const tabSize = typeof editor.options.tabSize === "number" ? editor.options.tabSize : 4;
+    const headers: vscode.DecorationOptions[] = [];
+    const markerTextRanges: vscode.Range[] = [];
+    const commentPrefixRanges: vscode.Range[] = [];
+    for (const annotation of hidden) {
+      const start = annotation.startLine - 1;
+      const startLine = editor.document.lineAt(start);
+      const markerColumn = startLine.text.indexOf("@agent-context");
+      const indentation = visualIndentationAfter(lines, annotation.endLine, tabSize);
+      const adjustment = indentationAdjustment(startLine.text, indentation, tabSize);
+      const leadingWhitespaceLength = startLine.text.match(/^\s*/)?.[0].length ?? 0;
+      const hover = new vscode.MarkdownString();
+      hover.supportHtml = true;
+      hover.appendText(annotation.text || "No additional context.");
+      hover.appendMarkdown(
+        "\n\n<small>Use the folding control in the gutter to expand or collapse this context.</small>"
+      );
+      headers.push({
+        range: new vscode.Range(start, 0, start, startLine.text.length),
+        hoverMessage: hover,
+        renderOptions: {
+          before: {
+            contentText: "\u200b",
+            margin: `0 0 0 ${adjustment}ch`
+          }
+        }
+      });
+      if (markerColumn >= 0) {
+        commentPrefixRanges.push(
+          new vscode.Range(start, leadingWhitespaceLength, start, markerColumn)
+        );
+        markerTextRanges.push(new vscode.Range(start, markerColumn, start, startLine.text.length));
       }
     }
-    editor.setDecorations(concealed, hidden);
-    editor.setDecorations(marker, markers);
+    editor.setDecorations(header, headers);
+    editor.setDecorations(hiddenMarkerText, markerTextRanges);
+    editor.setDecorations(hiddenCommentPrefix, commentPrefixRanges);
+    foldInitiallyHiddenAnnotations(editor, hidden);
   }
-  const refreshAll = (): void => { vscode.window.visibleTextEditors.forEach(refresh); };
+
+  function foldInitiallyHiddenAnnotations(editor: vscode.TextEditor, hidden: AgentContextAnnotation[]): void {
+    const key = editor.document.uri.toString();
+    if (initiallyFoldedDocuments.has(key)) return;
+    initiallyFoldedDocuments.add(key);
+    const selectionLines = hidden
+      .filter(annotation => annotation.endLine > annotation.startLine)
+      .map(annotation => annotation.startLine - 1);
+    if (selectionLines.length === 0) return;
+
+    setTimeout(() => {
+      if (vscode.window.activeTextEditor?.document !== editor.document) return;
+      void vscode.commands.executeCommand("editor.fold", {
+        selectionLines,
+        levels: 1,
+        direction: "down"
+      });
+    }, 0);
+  }
+
+  const refreshAll = (): void => {
+    vscode.window.visibleTextEditors.forEach(refresh);
+  };
+
   context.subscriptions.push(
-    concealed, marker,
+    header,
+    hiddenMarkerText,
+    hiddenCommentPrefix,
     vscode.window.onDidChangeVisibleTextEditors(refreshAll),
     vscode.window.onDidChangeActiveTextEditor(refreshAll),
-    vscode.window.onDidChangeTextEditorSelection(event => refresh(event.textEditor)),
     vscode.workspace.onDidChangeTextDocument(event => {
-      vscode.window.visibleTextEditors.filter(editor => editor.document === event.document).forEach(refresh);
+      vscode.window.visibleTextEditors
+        .filter(editor => editor.document === event.document)
+        .forEach(refresh);
     }),
-    vscode.workspace.onDidChangeConfiguration(event => { if (event.affectsConfiguration("agentContext")) refreshAll(); }),
-    vscode.workspace.onDidCloseTextDocument(document => cache.delete(document.uri.toString())),
+    vscode.workspace.onDidChangeConfiguration(event => {
+      if (!event.affectsConfiguration("agentContext")) return;
+      initiallyFoldedDocuments.clear();
+      refreshAll();
+    }),
+    vscode.workspace.onDidCloseTextDocument(document => {
+      cache.delete(document.uri.toString());
+      initiallyFoldedDocuments.delete(document.uri.toString());
+    }),
+    vscode.commands.registerCommand("agentContext.installFoldingControlStyle", async () => {
+      const customCss = vscode.extensions.getExtension("be5invis.vscode-custom-css");
+      if (!customCss) {
+        void vscode.window.showErrorMessage(
+          "Install the Custom CSS and JS Loader extension before installing the Agent Context folding style."
+        );
+        return;
+      }
+
+      const source = vscode.Uri.joinPath(
+        context.extensionUri,
+        "resources",
+        "vscode-agent-context.css"
+      );
+      const destination = vscode.Uri.joinPath(
+        context.globalStorageUri,
+        "vscode-agent-context.css"
+      );
+      await vscode.workspace.fs.createDirectory(context.globalStorageUri);
+      await vscode.workspace.fs.writeFile(destination, await vscode.workspace.fs.readFile(source));
+
+      const config = vscode.workspace.getConfiguration("vscode_custom_css");
+      const imports = config.get<string[]>("imports", []);
+      const stylesheetUrl = destination.toString();
+      const updatedImports = [
+        ...imports.filter(value => !value.includes("vscode-agent-context.css")),
+        stylesheetUrl
+      ];
+      await config.update("imports", updatedImports, vscode.ConfigurationTarget.Global);
+
+      await customCss.activate();
+      await vscode.commands.executeCommand("extension.updateCustomCSS");
+    }),
     { dispose: () => cache.clear() }
   );
   refreshAll();

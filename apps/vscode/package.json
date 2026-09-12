@@ -2,7 +2,7 @@
   "name": "agent-context",
   "displayName": "Agent Context",
   "description": "Visualize @agent-context annotations in VS Code.",
-  "version": "0.1.0",
+  "version": "0.1.19",
   "private": true,
   "publisher": "agent-context-local",
   "type": "commonjs",
@@ -17,9 +17,10 @@
     "Other"
   ],
   "scripts": {
-    "build": "esbuild src/extension.ts --bundle --platform=node --format=cjs --outfile=dist/extension.js --external:vscode --sourcemap",
+    "build": "esbuild src/extension.ts src/presentation.ts --bundle --platform=node --format=cjs --outdir=dist --external:vscode --sourcemap",
     "clean": "rm -rf dist",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test test/*.test.cjs",
     "package": "vsce package --no-dependencies --allow-missing-repository"
   },
   "dependencies": {
@@ -32,6 +33,16 @@
   },
   "license": "UNLICENSED",
   "contributes": {
+    "commands": [
+      {
+        "command": "agentContext.installFoldingControlStyle",
+        "title": "Install Folding Control Hover Style",
+        "category": "Agent Context"
+      }
+    ],
+    "configurationDefaults": {
+      "editor.foldingHighlight": false
+    },
     "configuration": {
       "title": "Agent Context",
       "properties": {

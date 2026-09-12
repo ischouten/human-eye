@@ -63,6 +63,6 @@ For local debugging, run `pnpm build:vscode`, then launch **Agent Context Extens
 
 ### Manual acceptance check
 
-Open a source file containing a multiline annotation. Move the caret outside the comment: its text should be concealed and a horizontal marker should remain. Hover the marker, then select the comment to edit it. Try `all` and `custom` visibility, edit the annotation type, open the same document in two editor groups, and disable the extension setting. Verify both groups refresh and ordinary code stays visible. Comments retain their original line space; this MVP does not collapse rows.
+Open a source file containing a multiline annotation. It should fold to one horizontal rule with no reserved blank rows. Hover the rule, then click the folding control in the gutter to expand and collapse it. Try `all` and `custom` visibility, edit the annotation type, open the same document in two editor groups, and disable the extension setting. Verify both groups refresh and ordinary code stays visible.
 
 The local publisher identifier is provisional (`agent-context-local`); choose a permanent identity before wider distribution, since changing it creates a different extension. No open-source license has been selected; the extension package is currently marked `UNLICENSED`.
