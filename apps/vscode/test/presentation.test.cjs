@@ -4,6 +4,7 @@ const {
   indentationAdjustment,
   leadingVisualIndentation,
   usesHashCommentSyntax,
+  visibilityForSelectedTypes,
   visualIndentationAfter
 } = require("../dist/presentation.js");
 
@@ -39,4 +40,13 @@ test("distinguishes hash comments that need manual folding", () => {
   assert.equal(usesHashCommentSyntax("    # @agent-context design"), true);
   assert.equal(usesHashCommentSyntax("    /* @agent-context design"), false);
   assert.equal(usesHashCommentSyntax("    // @agent-context design"), false);
+});
+
+test("maps selected annotation types to visibility settings", () => {
+  assert.deepEqual(visibilityForSelectedTypes(["history", "design"], []), { mode: "hidden" });
+  assert.deepEqual(visibilityForSelectedTypes(["history", "design"], ["design", "history"]), { mode: "all" });
+  assert.deepEqual(visibilityForSelectedTypes(["history", "design"], ["DESIGN", "missing"]), {
+    mode: "custom",
+    types: ["design"]
+  });
 });

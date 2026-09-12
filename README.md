@@ -59,7 +59,9 @@ The initial implementation covers the shared parser and VS Code integration. The
 
 Run `pnpm test`, `pnpm typecheck`, and `pnpm package:vscode`. Individual extension builds include their core dependency. Packaging creates `apps/vscode/human-eye-<version>.vsix` with the bundled runtime and no external runtime dependencies. If pnpm is not installed, use `npx --yes pnpm@10.15.1` in place of `pnpm`.
 
-GitHub Actions validates and packages on pushes, pull requests, and manual runs. Download `human-eye-vsix` from the workflow artifacts, extract it, and install the VSIX using VS Code's **Extensions: Install from VSIX** command. The workflow does not publish to a marketplace or create releases. Packaging uses Microsoft's [vsce tooling](https://code.visualstudio.com/api/working-with-extensions/publishing-extension).
+GitHub Actions validates and packages on pushes, pull requests, and manual runs. Download `human-eye-vsix` from the validation workflow artifacts, extract it, and install the VSIX using VS Code's **Extensions: Install from VSIX** command. Packaging uses Microsoft's [vsce tooling](https://code.visualstudio.com/api/working-with-extensions/publishing-extension).
+
+Marketplace publishing runs only through the manually dispatched **Publish HumanEye for VS Code** GitHub Actions workflow. The workflow repeats the tests and type checks, packages the VSIX, waits for any protection configured on the `visual-studio-marketplace` GitHub environment, authenticates through Microsoft Entra workload identity federation, and publishes the validated artifact. Configure `AZURE_CLIENT_ID` and `AZURE_TENANT_ID` as secrets on that environment. The Entra application also needs a federated credential for the GitHub environment and permission to publish for the Visual Studio Marketplace publisher. No Azure client secret or Marketplace PAT is used.
 
 For local debugging, run `pnpm build:vscode`, then launch **HumanEye Extension** from the root VS Code Run and Debug view.
 
@@ -67,4 +69,4 @@ For local debugging, run `pnpm build:vscode`, then launch **HumanEye Extension**
 
 Open a source file containing a multiline annotation. It should fold to one horizontal rule with no reserved blank rows. Hover the rule, then click the folding control in the gutter to expand and collapse it. Try `all` and `custom` visibility, edit the annotation type, open the same document in two editor groups, and disable the extension setting. Verify both groups refresh and ordinary code stays visible.
 
-The local publisher identifier is provisional (`agent-context-local`), so the current extension identity is `agent-context-local.human-eye`. Choose a permanent publisher before wider distribution, since changing it creates a different extension. No open-source license has been selected; the extension package is currently marked `UNLICENSED`.
+The local publisher identifier is provisional (`agent-context-local`), so the current extension identity is `agent-context-local.human-eye`. Choose a permanent publisher before wider distribution, since changing it creates a different extension. HumanEye is available under the [MIT License](LICENSE).

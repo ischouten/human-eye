@@ -6,7 +6,7 @@ Some generated comments contain valuable context for future modifications but di
 
 ## Installation
 
-Install the `.vsix` through **Extensions → Install from VSIX**. This is a privately distributed MVP with the provisional extension identity `agent-context-local.human-eye`. Marketplace publication is not configured yet.
+Install the `.vsix` through **Extensions → Install from VSIX**. This is a privately distributed MVP with the provisional extension identity `agent-context-local.human-eye`. Marketplace releases are published through the repository's manually dispatched GitHub Actions workflow after a permanent publisher is configured.
 
 ## How it works
 
@@ -27,9 +27,13 @@ const id = existingId;
 
 Multiline annotations are initially collapsed through folding ranges supplied by VS Code and installed language extensions, leaving one subtle full-width horizontal rule. Click the folding control in the gutter to expand or collapse the context. Hover the rule to inspect the annotation without expanding it. The extension disables folded-range background highlighting by default, while leaving native folding providers and placeholders intact. It does not modify files; comments remain present in copying, search, and accessibility tools.
 
+The VS Code status bar shows the active HumanEye filter whenever the current document contains annotations. Select it to choose which annotation types should be visible. HumanEye immediately expands the selected types and folds the remaining types; selecting every type is equivalent to `all`, while clearing the selection is equivalent to `hidden`.
+
 For a clear before-and-after comparison, open one of the Java, Python, TypeScript, Rust, or C# files under `examples/`, then disable and enable HumanEye. These deliberately context-heavy examples are intended for screenshots and compatibility checks and are not included in the extension package.
 
 ## Teach coding agents to use the convention
+
+Run **HumanEye: Install Agent Instructions** from the Command Palette to add the template below without replacing existing instructions. Choose either `CLAUDE.md` for Claude Code or `AGENTS.md` for Codex and compatible agents, then install it in the current project root or your user profile. HumanEye writes Claude profile instructions to `~/.claude/CLAUDE.md` and AGENTS profile instructions to `~/.codex/AGENTS.md`. Running the command again leaves an existing HumanEye section unchanged.
 
 Add the following instruction to your repository's `AGENTS.md`, `CLAUDE.md`, or equivalent agent instruction file:
 

@@ -9,7 +9,7 @@
     "build:browser": "corepack pnpm --filter @agent-context/browser... build",
     "clean": "corepack pnpm -r clean",
     "typecheck": "corepack pnpm build:core && corepack pnpm -r typecheck",
-    "test": "corepack pnpm build:core && node --test packages/core/test/*.test.mjs",
+    "test": "corepack pnpm build:core && node --test packages/core/test/*.test.mjs && corepack pnpm --filter human-eye test",
     "package:vscode": "corepack pnpm build:vscode && corepack pnpm --filter human-eye package"
   },
   "devDependencies": {

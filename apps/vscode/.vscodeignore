@@ -1,6 +1,8 @@
 **/*
 !package.json
 !README.md
+!CHANGELOG.md
+!LICENSE
 !dist/extension.js
 !resources/vscode-agent-context.css
 !images/python-expanded.png

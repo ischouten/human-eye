@@ -3,3 +3,4 @@ dist/
 *.vsix
 *.zip
 .DS_Store
+.vscode-test/

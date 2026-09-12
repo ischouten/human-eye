@@ -2,7 +2,7 @@
   "name": "human-eye",
   "displayName": "HumanEye",
   "description": "Make code human-readable by folding @agent-context maintenance annotations.",
-  "version": "0.1.29",
+  "version": "0.1.32",
   "private": true,
   "publisher": "agent-context-local",
   "repository": {
@@ -23,29 +23,59 @@
     "onStartupFinished"
   ],
   "categories": [
-    "Other"
+    "Other",
+    "Visualization"
+  ],
+  "keywords": [
+    "agent-context",
+    "ai",
+    "ai comments",
+    "ai-slop",
+    "aislop",
+    "aislob",
+    "cleanup",
+    "comments",
+    "folding",
+    "maintainability",
+    "readability"
   ],
   "scripts": {
-    "build": "esbuild src/extension.ts src/presentation.ts --bundle --platform=node --format=cjs --outdir=dist --external:vscode --sourcemap",
+    "build": "esbuild src/extension.ts src/presentation.ts src/instructions.ts --bundle --platform=node --format=cjs --outdir=dist --external:vscode --sourcemap",
+    "vscode:prepublish": "npm run build",
     "clean": "rm -rf dist",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node --test test/*.test.cjs",
+    "test": "npm run test:unit",
+    "test:unit": "npm run build && node --test test/*.test.cjs",
+    "test:integration": "npm run build && node test/integration/run.cjs",
     "package": "vsce package --no-dependencies"
   },
   "dependencies": {
     "@agent-context/core": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "^22.20.2",
     "@types/vscode": "^1.100.0",
+    "@vscode/test-electron": "2.5.2",
+    "@vscode/vsce": "^3.6.0",
     "esbuild": "^0.25.9",
-    "@vscode/vsce": "^3.6.0"
+    "mocha": "11.7.2"
   },
-  "license": "UNLICENSED",
+  "license": "SEE LICENSE IN LICENSE",
   "contributes": {
     "commands": [
       {
         "command": "agentContext.installFoldingControlStyle",
         "title": "Install Folding Control Hover Style",
+        "category": "HumanEye"
+      },
+      {
+        "command": "agentContext.selectVisibleTypes",
+        "title": "Select Visible Annotation Types",
+        "category": "HumanEye"
+      },
+      {
+        "command": "agentContext.installAgentInstructions",
+        "title": "Install Agent Instructions",
         "category": "HumanEye"
       }
     ],

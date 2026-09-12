@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import * as os from "node:os";
 import {
   isAgentContextVisible,
   parseAgentContext,
@@ -8,8 +9,10 @@ import {
 import {
   indentationAdjustment,
   usesHashCommentSyntax,
+  visibilityForSelectedTypes,
   visualIndentationAfter
 } from "./presentation";
+import { injectAgentContextInstructions } from "./instructions";
 
 export function activate(context: vscode.ExtensionContext): void {
   const header = vscode.window.createTextEditorDecorationType({
@@ -30,6 +33,10 @@ export function activate(context: vscode.ExtensionContext): void {
   });
   const cache = new Map<string, { version: number; annotations: AgentContextAnnotation[] }>();
   const initiallyFoldedDocuments = new Set<string>();
+  let updatingFilter = false;
+  const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 90);
+  status.command = "agentContext.selectVisibleTypes";
+  status.name = "HumanEye annotation filter";
 
   function annotations(document: vscode.TextDocument): AgentContextAnnotation[] {
     const key = document.uri.toString();
@@ -102,10 +109,39 @@ export function activate(context: vscode.ExtensionContext): void {
     foldInitiallyHiddenAnnotations(editor, hidden);
   }
 
+  function updateStatus(): void {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor || !vscode.workspace.getConfiguration("agentContext", editor.document.uri).get("enabled", true)) {
+      status.hide();
+      return;
+    }
+    const documentAnnotations = annotations(editor.document);
+    if (documentAnnotations.length === 0) {
+      status.hide();
+      return;
+    }
+    const current = visibility(editor.document);
+    const label = current.mode === "custom" ? current.types.join(", ") || "hidden" : current.mode;
+    status.text = `$(filter)$(sparkle-compact) ${label}`;
+    status.tooltip = `HumanEye: filter ${documentAnnotations.length} @agent-context annotation${documentAnnotations.length === 1 ? "" : "s"}`;
+    status.show();
+  }
+
+  async function reconcileAnnotationFolds(editor: vscode.TextEditor): Promise<void> {
+    if (vscode.window.activeTextEditor !== editor) return;
+    const documentAnnotations = annotations(editor.document).filter(
+      annotation => annotation.endLine > annotation.startLine
+    );
+    if (documentAnnotations.length === 0) return;
+    const selectionLines = documentAnnotations.map(annotation => annotation.startLine - 1);
+    await vscode.commands.executeCommand("editor.unfold", { selectionLines, levels: 1 });
+    initiallyFoldedDocuments.delete(editor.document.uri.toString());
+    foldInitiallyHiddenAnnotations(editor, hiddenAnnotations(editor.document));
+  }
+
   function foldInitiallyHiddenAnnotations(editor: vscode.TextEditor, hidden: AgentContextAnnotation[]): void {
     const key = editor.document.uri.toString();
     if (initiallyFoldedDocuments.has(key)) return;
-    initiallyFoldedDocuments.add(key);
     const manual = hidden.filter(
       annotation =>
         annotation.endLine > annotation.startLine &&
@@ -119,6 +155,8 @@ export function activate(context: vscode.ExtensionContext): void {
 
     setTimeout(async () => {
       if (vscode.window.activeTextEditor?.document !== editor.document) return;
+      if (initiallyFoldedDocuments.has(key)) return;
+      initiallyFoldedDocuments.add(key);
       if (manual.length > 0) {
         const previousSelections = editor.selections;
         editor.selections = manual.map(annotation => {
@@ -141,23 +179,32 @@ export function activate(context: vscode.ExtensionContext): void {
 
   const refreshAll = (): void => {
     vscode.window.visibleTextEditors.forEach(refresh);
+    updateStatus();
   };
 
   context.subscriptions.push(
     header,
     hiddenMarkerText,
     hiddenCommentPrefix,
+    status,
     vscode.window.onDidChangeVisibleTextEditors(refreshAll),
     vscode.window.onDidChangeActiveTextEditor(refreshAll),
     vscode.workspace.onDidChangeTextDocument(event => {
       vscode.window.visibleTextEditors
         .filter(editor => editor.document === event.document)
         .forEach(refresh);
+      updateStatus();
     }),
     vscode.workspace.onDidChangeConfiguration(event => {
       if (!event.affectsConfiguration("agentContext")) return;
+      if (updatingFilter) return;
       initiallyFoldedDocuments.clear();
-      refreshAll();
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        refreshAll();
+        return;
+      }
+      void reconcileAnnotationFolds(editor).then(refreshAll);
     }),
     vscode.workspace.onDidCloseTextDocument(document => {
       cache.delete(document.uri.toString());
@@ -195,6 +242,128 @@ export function activate(context: vscode.ExtensionContext): void {
 
       await customCss.activate();
       await vscode.commands.executeCommand("extension.updateCustomCSS");
+    }),
+    vscode.commands.registerCommand("agentContext.installAgentInstructions", async () => {
+      const format = await vscode.window.showQuickPick(
+        [
+          {
+            label: "Claude",
+            description: "CLAUDE.md",
+            filename: "CLAUDE.md",
+            profileDirectory: ".claude"
+          },
+          {
+            label: "Codex",
+            description: "AGENTS.md",
+            filename: "AGENTS.md",
+            profileDirectory: ".codex"
+          }
+        ],
+        {
+          placeHolder: "Choose the coding agent",
+          title: "Install HumanEye agent instructions · 1 of 2"
+        }
+      );
+      if (!format) return;
+
+      const scope = await vscode.window.showQuickPick(
+        [
+          {
+            label: "Project",
+            description: `Write ./${format.filename}`,
+            profile: false
+          },
+          {
+            label: "User profile",
+            description: `Write ~/${format.profileDirectory}/${format.filename}`,
+            profile: true
+          }
+        ],
+        {
+          placeHolder: "Choose where the instructions should apply",
+          title: `Install HumanEye ${format.label} instructions · 2 of 2`
+        }
+      );
+      if (!scope) return;
+
+      let destination: vscode.Uri;
+      if (scope.profile) {
+        destination = vscode.Uri.joinPath(vscode.Uri.file(os.homedir()), format.profileDirectory, format.filename);
+      } else {
+        const folders = vscode.workspace.workspaceFolders;
+        if (!folders?.length) {
+          void vscode.window.showErrorMessage("Open a project folder before installing project instructions.");
+          return;
+        }
+        let folder = folders[0];
+        if (folders.length > 1) {
+          const selected = await vscode.window.showWorkspaceFolderPick({
+            placeHolder: "Choose the project root for the instruction file"
+          });
+          if (!selected) return;
+          folder = selected;
+        }
+        destination = vscode.Uri.joinPath(folder.uri, format.filename);
+      }
+
+      let existing = "";
+      try {
+        existing = new TextDecoder().decode(await vscode.workspace.fs.readFile(destination));
+      } catch (error) {
+        if (!(error instanceof vscode.FileSystemError && error.code === "FileNotFound")) throw error;
+      }
+      const result = injectAgentContextInstructions(existing);
+      if (!result.changed) {
+        void vscode.window.showInformationMessage(`HumanEye instructions already exist in ${destination.fsPath}.`);
+        return;
+      }
+      await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(destination, ".."));
+      await vscode.workspace.fs.writeFile(destination, new TextEncoder().encode(result.content));
+      const action = await vscode.window.showInformationMessage(
+        `Added HumanEye instructions to ${destination.fsPath}.`,
+        "Open file"
+      );
+      if (action === "Open file") {
+        await vscode.window.showTextDocument(await vscode.workspace.openTextDocument(destination));
+      }
+    }),
+    vscode.commands.registerCommand("agentContext.selectVisibleTypes", async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) return;
+      const documentAnnotations = annotations(editor.document);
+      const types = [...new Set(documentAnnotations.map(annotation => annotation.type))].sort();
+      if (types.length === 0) return;
+      const counts = new Map<string, number>();
+      for (const annotation of documentAnnotations) {
+        counts.set(annotation.type, (counts.get(annotation.type) ?? 0) + 1);
+      }
+      const current = visibility(editor.document);
+      const visible = current.mode === "all" ? new Set(types) : new Set(current.mode === "custom" ? current.types : []);
+      const items = types.map(type => ({
+        label: type,
+        description: `${counts.get(type)} annotation${counts.get(type) === 1 ? "" : "s"}`,
+        picked: visible.has(type)
+      }));
+      const selected = await vscode.window.showQuickPick(items, {
+        canPickMany: true,
+        placeHolder: "Select annotation types to show; unselected types remain folded",
+        title: "HumanEye annotation filter"
+      });
+      if (!selected) return;
+      const next = visibilityForSelectedTypes(types, selected.map(item => item.label));
+      const config = vscode.workspace.getConfiguration("agentContext", editor.document.uri);
+      updatingFilter = true;
+      try {
+        if (next.mode === "custom") {
+          await config.update("visibleTypes", next.types, vscode.ConfigurationTarget.Workspace);
+        }
+        await config.update("visibility", next.mode, vscode.ConfigurationTarget.Workspace);
+      } finally {
+        updatingFilter = false;
+      }
+      await reconcileAnnotationFolds(editor);
+      refresh(editor);
+      updateStatus();
     }),
     { dispose: () => cache.clear() }
   );
