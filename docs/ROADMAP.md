@@ -50,7 +50,7 @@ The grammar contract is documented in [GRAMMAR.md](GRAMMAR.md).
 - [x] Package and install a local VSIX.
 - [x] Cover TypeScript, Java, and Python behavior in a real VS Code Extension Host.
 
-### M3 — VS Code polish: substantially complete
+### M3 — VS Code polish: complete
 
 - [x] Add a native status-bar filter for visible annotation types.
 - [x] Apply filter changes immediately by expanding and folding affected annotations.
@@ -68,11 +68,11 @@ The grammar contract is documented in [GRAMMAR.md](GRAMMAR.md).
 - [x] Measure parsing and refresh behavior on large source files and enforce regression budgets in CI.
 - [x] Add a Marketplace PNG icon of at least 128×128 pixels.
 - [x] Choose and configure `ischouten` as the permanent Visual Studio Marketplace publisher ID.
-- [ ] Configure the Marketplace trusted-publishing policy when Microsoft exposes it, then complete a first public publish; the protected GitHub environment is ready.
+- [x] Configure the protected GitHub environment and publish `ischouten.human-eye` 0.1.33 to the Visual Studio Marketplace.
 
 The September 2026 local baseline parses a 2.94 MB, 106,000-line source file containing 2,000 annotations in 5.25 ms median and 6.25 ms p95; custom-type filtering takes 0.019 ms median. The VS Code Extension Host opens and refreshes a generated 26,502-line TypeScript document containing 500 annotations in 201 ms while retaining native folding. CI allows a deliberately broad 250 ms parser median and 5-second Extension Host budget to detect major regressions without depending on runner speed.
 
-The implementation work for M3 is otherwise complete. The remaining item is blocked on the Marketplace exposing its trusted-publishing policy UI, followed by the first public release.
+The Marketplace trusted-publishing workflow is prepared, but releases remain manual until Microsoft exposes its trusted-publishing policy UI.
 
 ### M4 — GitHub browser MVP: started
 
@@ -100,20 +100,21 @@ The first browser implementation should use only the rendered GitHub DOM. It sho
 - [ ] Review permissions, privacy disclosures, accessibility, and performance.
 - [ ] Package a Chrome Web Store ZIP.
 
-### M6 — Public distribution: prepared
+### M6 — Public distribution: in progress
 
 - [x] License HumanEye under MIT.
 - [x] Add repeatable VS Code validation and packaging workflows.
 - [x] Add a protected, manual VS Code Marketplace publishing workflow.
-- [ ] Publish HumanEye for VS Code after the remaining M3 release tasks are complete.
+- [x] Publish HumanEye for VS Code.
+- [ ] Enable tokenless VS Code Marketplace releases when Microsoft exposes trusted-publishing policy configuration.
 - [ ] Publish the browser extension to the Chrome Web Store after M4 and M5 are complete.
 - [ ] Consider Firefox and other editor integrations after both primary integrations are stable.
 
 ## Near-term order
 
-1. Finish the two remaining M3 tasks and publish the first VS Code Marketplace release.
-2. Replace the browser placeholder with GitHub file and diff adapters.
-3. Validate the GitHub interaction locally before adding persistent filtering.
+1. Replace the browser placeholder with GitHub file and diff adapters.
+2. Validate the GitHub interaction locally before adding persistent filtering.
+3. Enable Marketplace trusted publishing when its policy UI becomes available.
 4. Prepare browser-store distribution only after the DOM integration is reliable.
 
 ## Scope boundaries
