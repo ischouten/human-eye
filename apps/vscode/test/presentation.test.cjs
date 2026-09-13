@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 const test = require("node:test");
 const {
   indentationAdjustment,
+  isEditorInTextDiff,
   leadingVisualIndentation,
   usesHashCommentSyntax,
   visibilityForSelectedTypes,
@@ -40,6 +41,17 @@ test("distinguishes hash comments that need manual folding", () => {
   assert.equal(usesHashCommentSyntax("    # @agent-context design"), true);
   assert.equal(usesHashCommentSyntax("    /* @agent-context design"), false);
   assert.equal(usesHashCommentSyntax("    // @agent-context design"), false);
+});
+
+test("recognizes both sides of a text diff", () => {
+  const diffs = [
+    { original: "review:/base/example.py", modified: "file:/workspace/example.py", viewColumn: 2, active: true },
+    { original: "git:/base/other.ts", modified: "file:/workspace/other.ts", viewColumn: 3, active: false }
+  ];
+  assert.equal(isEditorInTextDiff("review:/base/example.py", 2, diffs), true);
+  assert.equal(isEditorInTextDiff("file:/workspace/example.py", 2, diffs), true);
+  assert.equal(isEditorInTextDiff("file:/workspace/transient.py", 2, diffs), true);
+  assert.equal(isEditorInTextDiff("file:/workspace/unrelated.py", 3, diffs), false);
 });
 
 test("maps selected annotation types to visibility settings", () => {

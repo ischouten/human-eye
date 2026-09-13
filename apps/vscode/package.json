@@ -2,7 +2,7 @@
   "name": "human-eye",
   "displayName": "HumanEye",
   "description": "Make code human-readable by folding @agent-context maintenance annotations.",
-  "version": "0.1.33",
+  "version": "0.1.37",
   "private": true,
   "publisher": "ischouten",
   "repository": {

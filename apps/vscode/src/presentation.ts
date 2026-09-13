@@ -34,6 +34,19 @@ export function usesHashCommentSyntax(markerLine: string): boolean {
   return markerLine.trimStart().startsWith("#");
 }
 
+export function isEditorInTextDiff(
+  uri: string,
+  viewColumn: number | undefined,
+  diffs: readonly { original: string; modified: string; viewColumn?: number; active?: boolean }[]
+): boolean {
+  return diffs.some(
+    diff =>
+      diff.original === uri ||
+      diff.modified === uri ||
+      (viewColumn !== undefined && diff.active === true && diff.viewColumn === viewColumn)
+  );
+}
+
 export function visibilityForSelectedTypes(
   availableTypes: readonly string[],
   selectedTypes: readonly string[]

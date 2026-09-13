@@ -8,6 +8,7 @@ import {
 } from "@agent-context/core";
 import {
   indentationAdjustment,
+  isEditorInTextDiff,
   usesHashCommentSyntax,
   visibilityForSelectedTypes,
   visualIndentationAfter
@@ -29,6 +30,13 @@ export function activate(context: vscode.ExtensionContext): void {
   });
   const hiddenCommentPrefix = vscode.window.createTextEditorDecorationType({
     textDecoration: "none; font-size: 0;",
+    rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed
+  });
+  const dimmedDiffBody = vscode.window.createTextEditorDecorationType({
+    color: new vscode.ThemeColor("editorGhostText.foreground"),
+    opacity: "0.35",
+    textDecoration:
+      "none; color: var(--vscode-editorGhostText-foreground) !important; opacity: 0.35 !important;",
     rangeBehavior: vscode.DecorationRangeBehavior.ClosedClosed
   });
   const cache = new Map<string, { version: number; annotations: AgentContextAnnotation[] }>();
@@ -63,13 +71,33 @@ export function activate(context: vscode.ExtensionContext): void {
     return annotations(document).filter(annotation => !isAgentContextVisible(annotation, currentVisibility));
   }
 
+  function isTextDiffEditor(editor: vscode.TextEditor): boolean {
+    const diffs = vscode.window.tabGroups.all.flatMap(group =>
+      group.tabs.flatMap(tab =>
+        tab.input instanceof vscode.TabInputTextDiff
+          ? [
+              {
+                original: tab.input.original.toString(),
+                modified: tab.input.modified.toString(),
+                viewColumn: group.viewColumn,
+                active: tab.isActive
+              }
+            ]
+          : []
+      )
+    );
+    return isEditorInTextDiff(editor.document.uri.toString(), editor.viewColumn, diffs);
+  }
+
   function refresh(editor: vscode.TextEditor): void {
     const hidden = hiddenAnnotations(editor.document);
+    const textDiff = isTextDiffEditor(editor);
     const lines = editor.document.getText().split(/\r?\n/);
     const tabSize = typeof editor.options.tabSize === "number" ? editor.options.tabSize : 4;
     const headers: vscode.DecorationOptions[] = [];
     const markerTextRanges: vscode.Range[] = [];
     const commentPrefixRanges: vscode.Range[] = [];
+    const dimmedBodyRanges: vscode.Range[] = [];
     for (const annotation of hidden) {
       const start = annotation.startLine - 1;
       const startLine = editor.document.lineAt(start);
@@ -82,7 +110,9 @@ export function activate(context: vscode.ExtensionContext): void {
       hover.supportHtml = true;
       hover.appendText(annotation.text || "No additional context.");
       hover.appendMarkdown(
-        "\n\n<small>Use the folding control in the gutter to expand or collapse this context.</small>"
+        textDiff
+          ? "\n\n<small>Use the HumanEye status-bar filter to show or dim this context.</small>"
+          : "\n\n<small>Use the folding control in the gutter to expand or collapse this context.</small>"
       );
       headers.push({
         range: new vscode.Range(start, 0, start, startLine.text.length),
@@ -102,11 +132,18 @@ export function activate(context: vscode.ExtensionContext): void {
         }
         markerTextRanges.push(new vscode.Range(start, markerColumn, start, startLine.text.length));
       }
+      if (textDiff && annotation.endLine > annotation.startLine) {
+        const end = annotation.endLine - 1;
+        dimmedBodyRanges.push(
+          new vscode.Range(start + 1, 0, end, editor.document.lineAt(end).text.length)
+        );
+      }
     }
     editor.setDecorations(header, headers);
     editor.setDecorations(hiddenMarkerText, markerTextRanges);
     editor.setDecorations(hiddenCommentPrefix, commentPrefixRanges);
-    foldInitiallyHiddenAnnotations(editor, hidden);
+    editor.setDecorations(dimmedDiffBody, dimmedBodyRanges);
+    if (!textDiff) foldInitiallyHiddenAnnotations(editor, hidden);
   }
 
   function updateStatus(): void {
@@ -182,13 +219,20 @@ export function activate(context: vscode.ExtensionContext): void {
     updateStatus();
   };
 
+  const refreshAfterTabChange = (): void => {
+    setTimeout(refreshAll, 0);
+  };
+
   context.subscriptions.push(
     header,
     hiddenMarkerText,
     hiddenCommentPrefix,
+    dimmedDiffBody,
     status,
     vscode.window.onDidChangeVisibleTextEditors(refreshAll),
     vscode.window.onDidChangeActiveTextEditor(refreshAll),
+    vscode.window.tabGroups.onDidChangeTabs(refreshAfterTabChange),
+    vscode.window.tabGroups.onDidChangeTabGroups(refreshAfterTabChange),
     vscode.workspace.onDidChangeTextDocument(event => {
       vscode.window.visibleTextEditors
         .filter(editor => editor.document === event.document)
