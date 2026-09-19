@@ -1,3 +1,5 @@
+const MARKER_LINE = /^\s*@agent-context(?:[ \t]+[a-z][\w-]*)?\s*$/i;
+
 export function visualIndentationAfter(
   lines: readonly string[],
   annotationEndLine: number,
@@ -32,6 +34,14 @@ export function indentationAdjustment(
 
 export function usesHashCommentSyntax(markerLine: string): boolean {
   return markerLine.trimStart().startsWith("#");
+}
+
+export function needsManualFolding(markerLine: string): boolean {
+  return usesHashCommentSyntax(markerLine);
+}
+
+export function isEmbeddedDocstringMarker(markerLine: string): boolean {
+  return MARKER_LINE.test(markerLine);
 }
 
 export function isEditorInTextDiff(

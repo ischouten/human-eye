@@ -13,6 +13,27 @@ export function parseAgentContext(source: string): AgentContextAnnotation[] {
   const annotations: AgentContextAnnotation[] = [];
   for (let index = 0; index < lines.length; index++) {
     const trimmed = lines[index].trimStart();
+    const tripleQuote = trimmed.startsWith(`"""`) ? `"""` : trimmed.startsWith(`'''`) ? `'''` : undefined;
+    if (tripleQuote) {
+      if (trimmed.slice(tripleQuote.length).includes(tripleQuote)) continue;
+      let closingLine = index + 1;
+      while (closingLine < lines.length && lines[closingLine].trim() !== tripleQuote) closingLine++;
+      if (closingLine === lines.length) break;
+      const docstringLines = lines.slice(index + 1, closingLine);
+      const markerIndex = docstringLines.findIndex(line => MARKER.test(line));
+      const marker = markerIndex === -1 ? undefined : docstringLines[markerIndex].match(MARKER);
+      if (marker) {
+        const startLine = index + markerIndex + 2;
+        annotations.push({
+          type: marker[1]?.toLowerCase() ?? "untyped",
+          text: docstringLines.slice(markerIndex + 1).join("\n").trim(),
+          startLine,
+          endLine: Math.max(startLine, closingLine)
+        });
+      }
+      index = closingLine;
+      continue;
+    }
     const closing = trimmed.startsWith("/*") ? "*/" : trimmed.startsWith("<!--") ? "-->" : undefined;
     const prefix = trimmed.startsWith("//") ? "//" : trimmed.startsWith("#") ? "#" : undefined;
     let end = index;

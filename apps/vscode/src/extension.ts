@@ -8,7 +8,9 @@ import {
 } from "@agent-context/core";
 import {
   indentationAdjustment,
+  isEmbeddedDocstringMarker,
   isEditorInTextDiff,
+  needsManualFolding,
   usesHashCommentSyntax,
   visibilityForSelectedTypes,
   visualIndentationAfter
@@ -103,6 +105,7 @@ export function activate(context: vscode.ExtensionContext): void {
       const startLine = editor.document.lineAt(start);
       const markerColumn = startLine.text.indexOf("@agent-context");
       const hashComment = usesHashCommentSyntax(startLine.text);
+      const embeddedDocstring = isEmbeddedDocstringMarker(startLine.text);
       const indentation = visualIndentationAfter(lines, annotation.endLine, tabSize);
       const adjustment = indentationAdjustment(startLine.text, indentation, tabSize);
       const leadingWhitespaceLength = startLine.text.match(/^\s*/)?.[0].length ?? 0;
@@ -110,7 +113,7 @@ export function activate(context: vscode.ExtensionContext): void {
       hover.supportHtml = true;
       hover.appendText(annotation.text || "No additional context.");
       hover.appendMarkdown(
-        textDiff
+        textDiff || embeddedDocstring
           ? "\n\n<small>Use the HumanEye status-bar filter to show or dim this context.</small>"
           : "\n\n<small>Use the folding control in the gutter to expand or collapse this context.</small>"
       );
@@ -132,7 +135,7 @@ export function activate(context: vscode.ExtensionContext): void {
         }
         markerTextRanges.push(new vscode.Range(start, markerColumn, start, startLine.text.length));
       }
-      if (textDiff && annotation.endLine > annotation.startLine) {
+      if ((textDiff || embeddedDocstring) && annotation.endLine > annotation.startLine) {
         const end = annotation.endLine - 1;
         dimmedBodyRanges.push(
           new vscode.Range(start + 1, 0, end, editor.document.lineAt(end).text.length)
@@ -182,11 +185,15 @@ export function activate(context: vscode.ExtensionContext): void {
     const manual = hidden.filter(
       annotation =>
         annotation.endLine > annotation.startLine &&
-        usesHashCommentSyntax(editor.document.lineAt(annotation.startLine - 1).text)
+        needsManualFolding(editor.document.lineAt(annotation.startLine - 1).text)
     );
     const nativeSelectionLines = hidden
       .filter(annotation => annotation.endLine > annotation.startLine)
       .filter(annotation => !manual.includes(annotation))
+      .filter(
+        annotation =>
+          !isEmbeddedDocstringMarker(editor.document.lineAt(annotation.startLine - 1).text)
+      )
       .map(annotation => annotation.startLine - 1);
     if (manual.length === 0 && nativeSelectionLines.length === 0) return;
 
@@ -199,7 +206,12 @@ export function activate(context: vscode.ExtensionContext): void {
         editor.selections = manual.map(annotation => {
           const start = annotation.startLine - 1;
           const end = annotation.endLine - 1;
-          return new vscode.Selection(start, 0, end, editor.document.lineAt(end).text.length);
+          return new vscode.Selection(
+            start,
+            0,
+            end,
+            editor.document.lineAt(end).text.length
+          );
         });
         await vscode.commands.executeCommand("editor.createFoldingRangeFromSelection");
         editor.selections = previousSelections;

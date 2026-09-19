@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.38
+
+- Recognize `@agent-context` sections embedded after human-facing prose in Python triple-quoted docstrings.
+- Dim embedded docstring context because VS Code cannot nest a separate fold inside its native docstring fold without replacing Python folding.
+
 ## 0.1.37
 
 - Ensure syntax-token colors cannot override grey dimming in the modified side of a PR diff.

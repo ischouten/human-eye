@@ -4,6 +4,8 @@ An annotation occupies a standalone comment: `//`, `#`, `/* ... */`, or `<!-- ..
 
 The marker must occupy its own comment line: use `@agent-context TYPE`, then put agent-maintenance prose on subsequent comment lines. This deliberately preserves concise inline comments as normal human-facing documentation. Types start with an ASCII letter and may contain letters, digits, underscores, and hyphens. Types are normalized to lowercase. The established types are `invariant`, `history`, `compatibility`, `design`, and `dependency`. Unknown types are retained. Omitting the type produces `untyped`; put untyped prose on the next line to avoid treating its first word as a type. Empty content is valid. Colon syntax and marker-line prose are not supported.
 
+Inside a Python triple-quoted docstring, the marker may follow ordinary human-facing prose. The annotation begins on the marker line, continues to the line before the matching standalone `"""` or `'''` delimiter, and excludes both the preceding prose and closing delimiter.
+
 ```ts
 /* @agent-context invariant
  * IDs must remain stable across imports.

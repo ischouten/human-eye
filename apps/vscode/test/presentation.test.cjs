@@ -2,7 +2,9 @@ const assert = require("node:assert/strict");
 const test = require("node:test");
 const {
   indentationAdjustment,
+  isEmbeddedDocstringMarker,
   isEditorInTextDiff,
+  needsManualFolding,
   leadingVisualIndentation,
   usesHashCommentSyntax,
   visibilityForSelectedTypes,
@@ -41,6 +43,14 @@ test("distinguishes hash comments that need manual folding", () => {
   assert.equal(usesHashCommentSyntax("    # @agent-context design"), true);
   assert.equal(usesHashCommentSyntax("    /* @agent-context design"), false);
   assert.equal(usesHashCommentSyntax("    // @agent-context design"), false);
+});
+
+test("distinguishes manual hash folding from embedded docstring markers", () => {
+  assert.equal(needsManualFolding("    # @agent-context design"), true);
+  assert.equal(needsManualFolding("    @agent-context history"), false);
+  assert.equal(needsManualFolding("    /* @agent-context design"), false);
+  assert.equal(isEmbeddedDocstringMarker("    @agent-context history"), true);
+  assert.equal(isEmbeddedDocstringMarker("    # @agent-context history"), false);
 });
 
 test("recognizes both sides of a text diff", () => {

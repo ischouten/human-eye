@@ -19,6 +19,10 @@ async function main() {
     path.resolve(__dirname, "fixture/agent_context_fixture.py"),
     path.join(fixturePath, "agent_context_fixture.py")
   );
+  fs.copyFileSync(
+    path.resolve(__dirname, "fixture/embedded_docstring_fixture.py"),
+    path.join(fixturePath, "embedded_docstring_fixture.py")
+  );
   const largeFixture = ["export class LargeAgentContextFixture {"];
   for (let index = 0; index < 25_000; index += 1) {
     if (index % 50 === 0) {

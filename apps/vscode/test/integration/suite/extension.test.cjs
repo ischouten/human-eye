@@ -22,6 +22,17 @@ suite("HumanEye extension", () => {
     return editor.selection.active.line;
   }
 
+  async function waitForLineAfterMovingDownFrom(line, expected) {
+    const deadline = Date.now() + 2_000;
+    let actual;
+    do {
+      actual = await lineAfterMovingDownFrom(line);
+      if (actual === expected) return actual;
+      await delay(50);
+    } while (Date.now() < deadline);
+    return actual;
+  }
+
   async function setConfiguration(key, value) {
     await vscode.workspace.getConfiguration("agentContext", document.uri).update(
       key,
@@ -58,12 +69,12 @@ suite("HumanEye extension", () => {
 
   test("folds hidden annotations and selectively expands visible types", async () => {
     await setConfiguration("visibility", "hidden");
-    assert.equal(await lineAfterMovingDownFrom(1), 4);
-    assert.equal(await lineAfterMovingDownFrom(11), 14);
+    assert.equal(await waitForLineAfterMovingDownFrom(1, 4), 4);
+    assert.equal(await waitForLineAfterMovingDownFrom(11, 14), 14);
     await setConfiguration("visibleTypes", ["invariant"]);
     await setConfiguration("visibility", "custom");
     assert.equal(await lineAfterMovingDownFrom(1), 2);
-    assert.equal(await lineAfterMovingDownFrom(11), 14);
+    assert.equal(await waitForLineAfterMovingDownFrom(11, 14), 14);
     await setConfiguration("visibility", "all");
     assert.equal(await lineAfterMovingDownFrom(11), 12);
     assert.equal(vscode.workspace.getConfiguration("agentContext", document.uri).get("visibility"), "all");
@@ -81,14 +92,21 @@ suite("HumanEye extension", () => {
   });
 
   test("handles Python hash-comment annotations across enabled states", async () => {
-    await setConfiguration("visibility", "hidden");
     document = await openFixture("agent_context_fixture.py");
     assert.equal(vscode.window.activeTextEditor.document.languageId, "python");
-    assert.equal(vscode.workspace.getConfiguration("agentContext", document.uri).get("visibility"), "hidden");
     await setConfiguration("enabled", false);
     assert.equal(vscode.workspace.getConfiguration("agentContext", document.uri).get("enabled"), false);
     await setConfiguration("enabled", true);
     assert.equal(vscode.workspace.getConfiguration("agentContext", document.uri).get("enabled"), true);
+  });
+
+  test("keeps human-facing Python docstring prose visible", async () => {
+    await setConfiguration("visibility", "hidden");
+    document = await openFixture("embedded_docstring_fixture.py");
+    assert.equal(vscode.window.activeTextEditor.document.languageId, "python");
+    assert.equal(vscode.workspace.getConfiguration("agentContext", document.uri).get("visibility"), "hidden");
+    assert.equal(await lineAfterMovingDownFrom(1), 2);
+    assert.equal(await lineAfterMovingDownFrom(3), 4);
   });
 
   test("preserves native Java folding ranges", async () => {

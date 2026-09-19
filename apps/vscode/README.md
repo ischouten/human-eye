@@ -85,7 +85,7 @@ Long normal comments are a warning sign: consider clearer code, `@agent-context`
 - `agentContext.visibility`: `hidden` (default), `all`, or `custom`.
 - `agentContext.visibleTypes`: lowercase types to show in custom mode.
 
-Supported standalone comment forms are `//`, `#`, `/* ... */`, and `<!-- ... -->`. Established types are `invariant`, `history`, `compatibility`, `design`, and `dependency`; custom types are accepted. Parsing is textual, so comment-shaped lines inside multiline strings may also match.
+Supported standalone comment forms are `//`, `#`, `/* ... */`, and `<!-- ... -->`. Python `"""` and `'''` docstrings may also contain an `@agent-context` section after their human-facing prose. VS Code cannot create an independent fold inside its native docstring fold, so HumanEye dims that embedded section and keeps it available through hover and the status-bar filter. Established types are `invariant`, `history`, `compatibility`, `design`, and `dependency`; custom types are accepted.
 
 ## Optional: hide collapsed folding controls until gutter hover
 
