@@ -7,6 +7,7 @@ HumanEye makes source code easier to read by folding durable, agent-directed mai
 ```text
 @agent-context ─────┬─ HumanEye for VS Code
 core/spec/parser    ├─ HumanEye for GitHub
+                    ├─ HumanEye for IntelliJ IDEA
                     └─ other compatible tools
 ```
 
@@ -20,6 +21,7 @@ The repository is a pnpm TypeScript monorepo:
 packages/core   Shared parser, annotation types, ranges, and filtering semantics
 apps/vscode     HumanEye VS Code extension
 apps/browser    Chrome/Chromium extension for GitHub
+apps/intellij   Native Kotlin IntelliJ Platform plugin
 ```
 
 `packages/core` remains platform-independent. It must not depend on VS Code, browser APIs, DOM structures, or platform UI. Integrations share the parser and semantics while keeping rendering and platform discovery separate.
@@ -129,4 +131,14 @@ Module or repository instructions      → AGENTS.md or CLAUDE.md
 Significant architectural knowledge    → ADR or documentation
 ```
 
-Potential later consumers include JetBrains IDEs, CLI tooling, other Git clients, GitLab integrations, static validation, and agent tools that write or consume annotations. These remain outside the current roadmap until the VS Code and GitHub integrations are stable.
+Potential later consumers include CLI tooling, other Git clients, GitLab integrations, static validation, and agent tools that write or consume annotations. These remain outside the current roadmap until the VS Code and GitHub integrations are stable.
+
+### M7 — IntelliJ IDEA V1: local package ready
+
+- [x] Add a native Kotlin parser with shared fixture parity against the TypeScript core.
+- [x] Add editor folds that preserve existing IntelliJ folding regions.
+- [x] Add live document refresh, persistent visibility settings, and a status-bar filter.
+- [x] Build and validate a plugin ZIP for IntelliJ IDEA 2026.2.3 (build 262).
+- [x] Add a repeatable GitHub Actions packaging workflow.
+- [ ] Manually verify folding and filters in the installed IntelliJ UI, including Java and Python docstrings.
+- [ ] Create a JetBrains Marketplace vendor profile and publish after UI validation.

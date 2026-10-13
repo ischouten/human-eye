@@ -4,3 +4,7 @@ dist/
 *.zip
 .DS_Store
 .vscode-test/
+apps/intellij/.gradle/
+apps/intellij/build/
+apps/intellij/.idea/
+apps/intellij/.intellijPlatform/

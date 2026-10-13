@@ -1,0 +1,17 @@
+<idea-plugin>
+    <id>dev.humaneye</id>
+    <name>HumanEye</name>
+    <vendor url="https://github.com/ischouten/human-eye">Igor Schouten</vendor>
+    <description><![CDATA[<p>Make code human-readable again by folding durable, agent-directed maintenance comments. HumanEye recognizes the @agent-context convention, keeps context colocated with code, and provides hidden, all, and per-type visibility filters. Runs locally without an AI service or account.</p>]]></description>
+    <depends>com.intellij.modules.platform</depends>
+    <extensions defaultExtensionNs="com.intellij">
+        <editorFactoryListener implementation="dev.humaneye.HumanEyeEditorListener"/>
+        <applicationConfigurable id="dev.humaneye.settings" parentId="editor" displayName="HumanEye" instance="dev.humaneye.HumanEyeConfigurable"/>
+        <statusBarWidgetFactory implementation="dev.humaneye.HumanEyeWidgetFactory" id="HumanEye"/>
+    </extensions>
+    <actions>
+        <action id="HumanEye.Filter" class="dev.humaneye.HumanEyeFilterAction" text="HumanEye: Select Visible Annotation Types" description="Show or fold agent-context annotations by type">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>

@@ -74,3 +74,7 @@ For local debugging, run `pnpm build:vscode`, then launch **HumanEye Extension**
 Open a source file containing a multiline annotation. It should fold to one horizontal rule with no reserved blank rows. Hover the rule, then click the folding control in the gutter to expand and collapse it. Try `all` and `custom` visibility, edit the annotation type, open the same document in two editor groups, and disable the extension setting. Verify both groups refresh and ordinary code stays visible.
 
 HumanEye is published as `ischouten.human-eye` under the [MIT License](LICENSE).
+
+## IntelliJ IDEA
+
+The [IntelliJ plugin](apps/intellij/README.md) supports IntelliJ IDEA 2026.2.3 (build 262), with native editor folding, live annotation refresh, and a status-bar type filter. Build a plugin ZIP and install it from disk using the linked instructions.

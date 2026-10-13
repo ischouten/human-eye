@@ -1,0 +1,8 @@
+[
+  {"source":"# @agent-context history\n# something\n#\n# still context","annotations":[{"type":"history","text":"something\n\nstill context","startLine":1,"endLine":4}]},
+  {"source":"# @agent-context history\n# something\n\n# normal comment","annotations":[{"type":"history","text":"something","startLine":1,"endLine":2}]},
+  {"source":"const x = 1;\n/**\n * @agent-context invariant\n * Keep IDs stable.\n */","annotations":[{"type":"invariant","text":"Keep IDs stable.","startLine":2,"endLine":5}]},
+  {"source":"\"\"\"A human summary.\n\nMore visible prose.\n\n@agent-context history\nThe failure was real.\nKeep this test.\n\"\"\"","annotations":[{"type":"history","text":"The failure was real.\nKeep this test.","startLine":5,"endLine":7}]},
+  {"source":"/* @agent-context invariant */ run();","annotations":[]},
+  {"source":"// @agent-context history and prose\n// no","annotations":[]}
+]

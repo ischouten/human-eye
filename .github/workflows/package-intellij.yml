@@ -1,0 +1,27 @@
+name: Package IntelliJ plugin
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Test and package
+        working-directory: apps/intellij
+        run: ./gradlew test buildPlugin verifyPluginStructure
+      - uses: actions/upload-artifact@v4
+        with:
+          name: human-eye-intellij
+          path: apps/intellij/build/distributions/*.zip
