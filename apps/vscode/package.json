@@ -1,8 +1,8 @@
 {
   "name": "human-eye",
   "displayName": "HumanEye",
-  "description": "Make code human-readable by folding @agent-context maintenance annotations.",
-  "version": "0.1.38",
+  "description": "Make code written by agents easier to parse for you, the reader by folding durable, agent-directed maintenance comments. HumanEye recognizes the @agent-context convention, keeps context colocated with code, and provides hidden, all, and per-type visibility filters. Runs locally without an AI service or account.",
+  "version": "0.1.39",
   "private": true,
   "publisher": "ischouten",
   "repository": {

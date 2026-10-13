@@ -1,3 +1,5 @@
+import jdk.internal.net.http.common.Pair
+
 data class ToolCall(val name: String, val path: String)
 
 data class Observation(val succeeded: Boolean, val output: String)

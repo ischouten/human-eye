@@ -6,10 +6,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.wm.*
-import com.intellij.util.Consumer
 import java.awt.BorderLayout
 import java.awt.GridLayout
-import java.awt.event.MouseEvent
 import javax.swing.*
 
 class HumanEyeConfigurable : Configurable {
@@ -69,16 +67,4 @@ class HumanEyeWidgetFactory : StatusBarWidgetFactory {
     override fun getId() = "HumanEye"
     override fun getDisplayName() = "HumanEye annotation filter"
     override fun createWidget(project: Project): StatusBarWidget = HumanEyeWidget(project)
-}
-
-class HumanEyeWidget(private val project: Project) : StatusBarWidget, StatusBarWidget.TextPresentation {
-    override fun ID() = "HumanEye"
-    override fun getPresentation(): StatusBarWidget.WidgetPresentation = this
-    override fun getText(): String {
-        val state = HumanEyeSettings.get().state
-        return "HumanEye: " + if (!state.enabled) "off" else if (state.visibility == "custom") state.visibleTypes.joinToString(", ") else state.visibility
-    }
-    override fun getAlignment() = 0f
-    override fun getTooltipText() = "Choose which @agent-context annotations remain visible"
-    override fun getClickConsumer(): Consumer<MouseEvent> = Consumer { HumanEyeFilterAction.showFilter(project) }
 }

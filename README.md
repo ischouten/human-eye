@@ -4,7 +4,7 @@
   <img src="res/human-eye.png" alt="HumanEye logo" width="160">
 </p>
 
-HumanEye makes code human-readable again by folding durable, agent-directed maintenance comments out of the normal reading flow. `@agent-context` is the editor-independent annotation specification that HumanEye implements; HumanEye is the extension and product name.
+HumanEye makes code written by agents easier to parse for you, the reader by folding durable, agent-directed maintenance comments out of the normal reading flow. `@agent-context` is the editor-independent annotation specification that HumanEye implements; HumanEye is the extension and product name.
 
 This monorepo contains the HumanEye VS Code extension, a browser integration for GitHub, and the shared `@agent-context` parser.
 

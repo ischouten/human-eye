@@ -1,6 +1,8 @@
 # HumanEye for IntelliJ IDEA
 
-HumanEye folds `@agent-context` maintenance annotations so source files stay readable. The comments remain in the file and can be expanded in IntelliJ's gutter. The plugin runs locally and does not need an AI account or service.
+HumanEye folds `@agent-context` maintenance annotations so source files stay readable. The comments remain in the file and can be expanded in IntelliJ's gutter. The plugin runs locally and does not need an AI account or service. Its Marketplace plugin ID is `ischouten.human-eye`, matching the VS Code extension ID.
+
+To have a coding agent write these annotations, add the [HumanEye instruction template](../../docs/AGENT_INSTRUCTIONS.md) to your project's `AGENTS.md`, creating it if needed. If the project already has a `CLAUDE.md`, add the template there too. The plugin does not edit agent instruction files.
 
 ## Build and install
 
@@ -10,7 +12,7 @@ Use IntelliJ IDEA 2026.2.3 or a compatible build in the 262 line, and JDK 25. Bu
 ./gradlew -Dorg.gradle.java.installations.paths="/Applications/IntelliJ IDEA.app/Contents/jbr/Contents/Home" -PlocalIde="/Applications/IntelliJ IDEA.app/Contents" test buildPlugin
 ```
 
-The plugin ZIP appears at `build/distributions/human-eye-0.1.0.zip`. To try the already-built package in this checkout, open **Settings → Plugins → gear icon → Install Plugin from Disk**, select that ZIP, and restart. `./gradlew runIde` launches a sandbox IDE for development. On another computer, omit `-PlocalIde` to let Gradle download the target IntelliJ release.
+The plugin ZIP appears at `build/distributions/human-eye-0.1.1.zip`. To try the already-built package in this checkout, open **Settings → Plugins → gear icon → Install Plugin from Disk**, select that ZIP, and restart. `./gradlew runIde` launches a sandbox IDE for development. On another computer, omit `-PlocalIde` to let Gradle download the target IntelliJ release.
 
 ## Use
 

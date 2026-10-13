@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.39
+
+- Clarify how HumanEye keeps agent-written code readable in the Marketplace description.
+- Reduce the Marketplace icon size to meet the upload limit.
+
 ## 0.1.38
 
 - Recognize `@agent-context` sections embedded after human-facing prose in Python triple-quoted docstrings.
