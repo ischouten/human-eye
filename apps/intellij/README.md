@@ -4,6 +4,16 @@ HumanEye folds `@agent-context` maintenance annotations so source files stay rea
 
 To have a coding agent write these annotations, add the [HumanEye instruction template](../../docs/AGENT_INSTRUCTIONS.md) to your project's `AGENTS.md`, creating it if needed. If the project already has a `CLAUDE.md`, add the template there too. The plugin does not edit agent instruction files.
 
+## Marketplace page
+
+The overview and What's New text come from `plugin.xml`. Keep Getting Started in its separate Marketplace field; JetBrains renders HTML there, so paste the link as HTML rather than Markdown:
+
+```html
+<p>To help your coding agent write these annotations, add the <a href="https://github.com/ischouten/human-eye/blob/main/docs/AGENT_INSTRUCTIONS.md">HumanEye instruction template</a> to your project's <code>AGENTS.md</code>, creating that file if needed. If the project already has a <code>CLAUDE.md</code>, add the template there too. The plugin itself does not edit instruction files.</p>
+```
+
+Add `https://github.com/ischouten/human-eye/blob/main/apps/intellij/PRIVACY.md` as a Privacy Policy custom link in the Marketplace Resources area. The overview and 0.1.2 update notes also link to that notice. Publish `apps/intellij/PRIVACY.md` in the public repository before uploading the plugin ZIP so the links resolve.
+
 ## Build and install
 
 Use IntelliJ IDEA 2026.2.3 or a compatible build in the 262 line, and JDK 25. Build with:
@@ -12,7 +22,7 @@ Use IntelliJ IDEA 2026.2.3 or a compatible build in the 262 line, and JDK 25. Bu
 ./gradlew -Dorg.gradle.java.installations.paths="/Applications/IntelliJ IDEA.app/Contents/jbr/Contents/Home" -PlocalIde="/Applications/IntelliJ IDEA.app/Contents" test buildPlugin
 ```
 
-The plugin ZIP appears at `build/distributions/human-eye-0.1.1.zip`. To try the already-built package in this checkout, open **Settings → Plugins → gear icon → Install Plugin from Disk**, select that ZIP, and restart. `./gradlew runIde` launches a sandbox IDE for development. On another computer, omit `-PlocalIde` to let Gradle download the target IntelliJ release.
+The plugin ZIP appears at `build/distributions/human-eye-0.1.2.zip`. To try the already-built package in this checkout, open **Settings → Plugins → gear icon → Install Plugin from Disk**, select that ZIP, and restart. `./gradlew runIde` launches a sandbox IDE for development. On another computer, omit `-PlocalIde` to let Gradle download the target IntelliJ release.
 
 ## Use
 

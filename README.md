@@ -75,6 +75,8 @@ Open a source file containing a multiline annotation. It should fold to one hori
 
 HumanEye is published as `ischouten.human-eye` under the [MIT License](LICENSE).
 
+The IntelliJ plugin's local data handling is described in its [privacy notice](apps/intellij/PRIVACY.md).
+
 ## IntelliJ IDEA
 
 The [IntelliJ plugin](apps/intellij/README.md) supports IntelliJ IDEA 2026.2.3 (build 262), with native editor folding, live annotation refresh, and a status-bar type filter. Build a plugin ZIP and install it from disk using the linked instructions.

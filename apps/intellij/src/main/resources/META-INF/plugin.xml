@@ -2,7 +2,8 @@
     <id>ischouten.human-eye</id>
     <name>HumanEye</name>
     <vendor url="https://github.com/ischouten/human-eye">Igor Schouten</vendor>
-    <description><![CDATA[<p>Make code written by agents easier to parse for you, the reader by folding durable, agent-directed maintenance comments.</p><p>HumanEye recognizes the @agent-context convention, keeps context colocated with code, and provides hidden, all, and per-type visibility filters. Runs locally without an AI service or account.</p><p>To help your coding agent write these annotations, add the <a href="https://github.com/ischouten/human-eye/blob/main/docs/AGENT_INSTRUCTIONS.md">HumanEye instruction template</a> to your project's <code>AGENTS.md</code>, creating that file if needed. If the project already has a <code>CLAUDE.md</code>, add the template there too. The plugin itself does not edit instruction files.</p>]]></description>
+    <description><![CDATA[<p>Make code written by agents easier to parse for you, the reader by folding durable, agent-directed maintenance comments.</p><p>HumanEye recognizes the @agent-context convention, keeps context colocated with code, and provides hidden, all, and per-type visibility filters. Runs locally without an AI service or account.</p><p><a href="https://github.com/ischouten/human-eye/blob/main/apps/intellij/PRIVACY.md">Privacy notice</a></p>]]></description>
+    <change-notes><![CDATA[<ul><li>Added a <a href="https://github.com/ischouten/human-eye/blob/main/apps/intellij/PRIVACY.md">privacy notice</a> explaining local annotation processing and saved filter preferences.</li><li>Kept agent setup guidance in Getting Started, separate from the plugin overview.</li></ul>]]></change-notes>
     <depends>com.intellij.modules.platform</depends>
     <extensions defaultExtensionNs="com.intellij">
         <editorFactoryListener implementation="dev.humaneye.HumanEyeEditorListener"/>
