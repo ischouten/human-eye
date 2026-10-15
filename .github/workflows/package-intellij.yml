@@ -21,6 +21,9 @@ jobs:
       - name: Test and package
         working-directory: apps/intellij
         run: ./gradlew test buildPlugin verifyPluginStructure
+      - name: Check Marketplace source link before manual upload
+        if: github.event_name == 'workflow_dispatch'
+        run: python3 apps/intellij/scripts/check_marketplace_source.py
       - uses: actions/upload-artifact@v4
         with:
           name: human-eye-intellij

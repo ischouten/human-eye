@@ -12,6 +12,8 @@ The overview and What's New text come from `plugin.xml`. Keep Getting Started in
 <p>To help your coding agent write these annotations, add the <a href="https://github.com/ischouten/human-eye/blob/main/docs/AGENT_INSTRUCTIONS.md">HumanEye instruction template</a> to your project's <code>AGENTS.md</code>, creating that file if needed. If the project already has a <code>CLAUDE.md</code>, add the template there too. The plugin itself does not edit instruction files.</p>
 ```
 
+Set the Marketplace **Source Code** resource to `https://github.com/ischouten/human-eye` (with the hyphen). This is a separate Marketplace field; the vendor URL in `plugin.xml` does not set it. The manually dispatched packaging workflow checks that the Marketplace still serves this URL before producing an upload artifact. Run `python3 apps/intellij/scripts/check_marketplace_source.py` from the repository root after each upload to confirm the link remains correct and publicly reachable.
+
 Add `https://github.com/ischouten/human-eye/blob/main/apps/intellij/PRIVACY.md` as a Privacy Policy custom link in the Marketplace Resources area. The overview and 0.1.2 update notes also link to that notice. Publish `apps/intellij/PRIVACY.md` in the public repository before uploading the plugin ZIP so the links resolve.
 
 ## Build and install
