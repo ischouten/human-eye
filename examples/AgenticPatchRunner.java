@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.Set;
 
 public final class AgenticPatchRunner {
-    private static final Set<String> WRITE_TOOLS = Set.of("apply_patch", "write_file", "delete_file");
+    private static final Set<String> WRITE_TOOLS = Set.of("apply_patch", "write_file", "move_file", "delete_file");
 
     /* @agent-context design
      * Keep planning and execution in one loop. An earlier implementation first
      * generated a complete plan and then executed it, but later tool results
      * frequently invalidated the remaining steps. Replanning after every
-     * observation costs a little more model time but avoids applying stale edits
-     * and makes interruption safe at any tool boundary.
+     * observation costs a little more model time but avoids applying stale edits,
+     * keeps approvals current, and makes interruption safe at any tool boundary.
      */
     public RunResult run(Task task, Workspace workspace, Model model) {
         List<Event> transcript = new ArrayList<>();
@@ -29,11 +29,16 @@ public final class AgenticPatchRunner {
              * instance.
              */
             ToolCall normalized = normalize(call, workspace);
-            if (WRITE_TOOLS.contains(normalized.name()) && !task.allowsWrites()) {
+            boolean writeRequested = WRITE_TOOLS.contains(normalized.name());
+            if (writeRequested && !task.allowsWrites()) {
+                /* @agent-context security
+                 * Keep the rejection beside the authorization boundary so future tool
+                 * dispatch paths cannot accidentally bypass it.
+                 */
                 return RunResult.blocked(transcript, "The task does not authorize workspace changes");
             }
 
-            /* @agent-context dependency
+            /* @agent-context concurrency
              * The workspace revision is an optimistic concurrency token shared with the
              * editor integration. A human edit increments it even when the file contents
              * later return to the same bytes. Comparing content hashes here would miss
@@ -47,12 +52,7 @@ public final class AgenticPatchRunner {
             ToolResult result = workspace.execute(normalized);
             transcript.add(new Event(Instant.now(), normalized, result));
 
-            /* @agent-context history
-             * Always checkpoint failed tool calls too. Incident AGENT-42 showed that
-             * resuming before the failed observation made the model repeat a destructive
-             * rename indefinitely. The transcript is append-only so a resumed run sees both
-             * the attempted call and the executor's error.
-             */
+            // Preserve every observation so replay includes failed tool calls.
             state = state.observe(result, workspace.revision());
         }
 
